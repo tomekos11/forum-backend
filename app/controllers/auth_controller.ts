@@ -6,18 +6,22 @@ import { Hash } from '@adonisjs/core/hash'
 export default class AuthController {
   public async login({ request, auth, response }: HttpContext) {
     const { username, password } = request.only(['username', 'password'])
-    const user = await User.findBy('username', username)
 
-    if (!user || !(await Hash.verify(user.password, password))) {
+    try {
+      // Użycie metody verifyCredentials do sprawdzenia użytkownika i hasła
+      const user = await User.verifyCredentials(username, password)
+
+      // Generowanie tokena JWT przy użyciu login()
+      await auth.use('jwt').generate(user)
+
+      return { message: 'Zalogowano pomyślnie' }
+    } catch (error) {
       return response.unauthorized({ error: 'Nieprawidłowe dane logowania' })
     }
-
-    const token = await auth.use('api').generate(user)
-    return { message: 'Zalogowano pomyślnie', token }
   }
 
   public async checkAdmin({ auth, response }: HttpContext) {
-    await auth.use('api').authenticate()
+    await auth.use('jwt').authenticate()
     return response.ok({ isAdmin: auth.user?.role === 'admin' })
   }
 }

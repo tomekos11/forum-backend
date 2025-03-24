@@ -14,3 +14,13 @@ router.get('/', async () => {
     hello: 'world',
   }
 })
+
+const AuthController = () => import('#controllers/auth_controller')
+const PostController = () => import('#controllers/posts_controller')
+
+router.post('/login', [AuthController, 'login'])
+router.get('/check-admin', [AuthController, 'checkAdmin'])
+
+router.get('/posts', [PostController, 'index'])
+router.post('/posts', [PostController, 'store'])
+router.delete('/posts/:id', [PostController, 'destroy'])
