@@ -17,8 +17,8 @@ export const topicsList = async (forumId: boolean) => {
       topic.$extras.postCounter = postCount[0]?.$extras?.count || 0
     }
 
-    const PrimaryTopics = topics.filter((topic) => (topic.is_primary as any) === 1)
-    const nonPrimaryTopics = topics.filter((topic) => (topic.is_primary as any) === 0)
+    const PrimaryTopics = topics.filter((topic) => topic.isPrimary)
+    const nonPrimaryTopics = topics.filter((topic) => !topic.isPrimary)
 
     return { PrimaryTopics, nonPrimaryTopics }
   } catch (error) {
