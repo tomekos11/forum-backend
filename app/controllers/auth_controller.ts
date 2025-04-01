@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { createUserValidator } from '#validators/user'
 
 import User from '#models/user'
 
@@ -20,6 +21,13 @@ export default class AuthController {
     const { username, password } = request.only(['username', 'password'])
 
     try {
+      await createUserValidator.validate({ username, password })
+
+      const existingUser = await User.findBy('username', username)
+      if (existingUser) {
+        return response.badRequest({ error: 'Użytkownik o tej nazwie już istnieje' })
+      }
+
       const user = await User.create({ username, password })
       await auth.use('jwt').generate(user)
 
