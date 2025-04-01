@@ -24,8 +24,11 @@ router.post('/register', [AuthController, 'register'])
 
 router.get('/check-admin', [AuthController, 'checkAdmin'])
 
-router.get('/posts', [PostController, 'index'])
-router.post('/posts', [PostController, 'store'])
-router.delete('/posts/:id', [PostController, 'destroy'])
+router.post('/forums', [ForumsController, 'index'])
+router.get('/forums/:forumId/posts', [ForumsController, 'posts'])
 
-router.get('/forums', [ForumsController, 'index'])
+// router.post('/topics/:topicId/posts', [TopicsController, 'index'])
+
+router.post('/posts/:topicId', [PostController, 'store'])
+
+router.delete('/posts/:postId', [PostController, 'destroy'])
