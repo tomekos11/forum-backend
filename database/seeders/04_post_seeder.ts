@@ -14,17 +14,32 @@ export default class extends BaseSeeder {
     // Tworzenie postów
     const posts = [
       {
-        user_id: moderator.id,
+        userId: moderator.id,
+        topicId: 1,
         title: 'Post Moderatora',
         content: 'To jest post stworzony przez moderatora.',
       },
       {
-        user_id: user1.id,
+        userId: user1.id,
+        topicId: 1,
         title: 'Post Użytkownika 1',
         content: 'To jest post stworzony przez użytkownika 1.',
       },
       {
-        user_id: user2.id,
+        userId: user1.id,
+        topicId: 2,
+        title: '123',
+        content: 'To jest post stworzony przez użytkownika 1.',
+      },
+      {
+        userId: user1.id,
+        topicId: 2,
+        title: '234',
+        content: 'To jest post stworzony przez użytkownika 1.',
+      },
+      {
+        userId: user2.id,
+        topicId: 3,
         title: 'Post Użytkownika 2',
         content: 'To jest post stworzony przez użytkownika 2.',
       },

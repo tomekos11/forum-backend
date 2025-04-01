@@ -11,13 +11,15 @@ export default class PostController {
     await auth.use('jwt').authenticate()
     const user = auth.user!
 
-    const { title, content } = request.only(['title', 'content'])
-    if (!title || !content) {
-      return response.badRequest({ error: 'Tytuł i treść są wymagane' })
+    const { title, content, topicId } = request.only(['title', 'content', 'topicId'])
+
+    if (!title || !content || !topicId) {
+      return response.badRequest({ error: 'title i content i topicId są wymagane' })
     }
 
     const post = await Post.create({
       userId: user.id,
+      topicId,
       title,
       content,
     })

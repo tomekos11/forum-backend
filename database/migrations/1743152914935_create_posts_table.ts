@@ -5,8 +5,10 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').notNullable()
+
       table.integer('user_id').unsigned().nullable().references('users.id').onDelete('SET NULL')
+      table.integer('topic_id').unsigned().nullable().references('topics.id').onDelete('CASCADE')
       table.string('title').notNullable()
       table.text('content').notNullable()
 
