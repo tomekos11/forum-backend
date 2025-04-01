@@ -1,5 +1,5 @@
 import Post from '#models/post'
-import Topic from '#models/topic'
+import { destroyPostValidator, editPostValidator, storePostValidator } from '#validators/post'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PostController {
@@ -12,17 +12,7 @@ export default class PostController {
     await auth.use('jwt').authenticate()
     const user = auth.user!
 
-    const { title, content, topicId } = request.only(['title', 'content', 'topicId'])
-
-    if (!title || !content || !topicId) {
-      return response.badRequest({ error: 'title i content i topicId są wymagane' })
-    }
-
-    const topic = await Topic.find(topicId)
-
-    if (!topic) {
-      return response.notFound({ error: 'Podany topicId nie istnieje' })
-    }
+    const { title, content, topicId } = await storePostValidator.validate(request.all())
 
     const post = await Post.create({
       userId: user.id,
@@ -34,16 +24,34 @@ export default class PostController {
     return response.created({ message: 'Post dodany!', post })
   }
 
-  // TODO dostosowac role do usuwania postów
-  public async destroy({ params, auth, response }: HttpContext) {
+  public async edit({ request, auth, response }: HttpContext) {
     await auth.use('jwt').authenticate()
-    if (auth.user?.role !== 'admin') {
-      return response.forbidden({ error: 'Brak uprawnień administratora' })
+    const user = auth.user!
+
+    const { content, postId } = await editPostValidator.validate(request.all())
+
+    const post = await Post.query().where('id', postId).preload('user').firstOrFail()
+
+    if (user.role !== 'moderator' || post.userId === user.id) {
+      return response.forbidden({ error: 'Brak uprawnień' })
     }
 
-    const post = await Post.find(params.id)
-    if (!post) {
-      return response.notFound({ error: 'Post nie został znaleziony' })
+    post.content = content
+    await post.save()
+
+    return response.created({ message: 'Post został zedytowany!', post })
+  }
+
+  public async destroy({ request, auth, response }: HttpContext) {
+    await auth.use('jwt').authenticate()
+    const user = auth.user!
+
+    const { postId } = await destroyPostValidator.validate(request.all())
+
+    const post = await Post.query().where('id', postId).preload('user').firstOrFail()
+
+    if (user.role !== 'moderator' || post.userId === user.id) {
+      return response.forbidden({ error: 'Brak uprawnień' })
     }
 
     await post.delete()
