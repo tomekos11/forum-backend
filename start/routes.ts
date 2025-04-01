@@ -20,6 +20,8 @@ const PostController = () => import('#controllers/posts_controller')
 const ForumsController = () => import('#controllers/forums_controller')
 
 router.post('/login', [AuthController, 'login'])
+router.post('/register', [AuthController, 'register'])
+
 router.get('/check-admin', [AuthController, 'checkAdmin'])
 
 router.get('/posts', [PostController, 'index'])
