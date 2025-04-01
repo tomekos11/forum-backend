@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, hasMany, computed } from '@adonisjs/lucid/orm'
 import Forum from './forum.js'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Post from './post.js'
@@ -14,11 +14,19 @@ export default class Topic extends BaseModel {
   @column()
   declare forumId: number | null // Może być null, jeśli użytkownik zostanie usunięty
 
+  @column()
+  declare is_primary: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @computed()
+  public get postCounter() {
+    return this.$extras.postCounter || null
+  }
 
   @belongsTo(() => Forum)
   declare forum: BelongsTo<typeof Forum>

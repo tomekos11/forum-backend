@@ -1,18 +1,39 @@
 import type { HttpContext } from '@adonisjs/core/http'
-
-import { forums } from '#services/forums'
-import { postsForForumValidator } from '#validators/forum'
+import { forumsList } from '#services/forums'
+import { createForumValidator } from '#validators/forum'
+import Forum from '#models/forum'
 
 export default class ForumsController {
   public async index({ response }: HttpContext) {
-    return forums()
+    const forums = await forumsList()
+    return response.ok(forums)
   }
 
-  public async posts({ request, auth, response }: HttpContext) {
-    // dodaj walidator
+  public async store({ request, response }: HttpContext) {
+    try {
+      const data = request.only(['name', 'description'])
+      const payload = await createForumValidator.validate(data)
 
-    const { forumId } = await postsForForumValidator.validate(request.all())
+      const forum = await Forum.create(payload)
 
-    // zwróć dla
+      return response.created(forum)
+    } catch (error) {
+      return response.badRequest(error.messages)
+    }
+  }
+
+  public async update({ params, request, response }: HttpContext) {
+    try {
+      const forum = await Forum.findOrFail(params.forumId)
+      const data = request.only(['name', 'description'])
+      const payload = await createForumValidator.validate(data)
+
+      forum.merge(payload)
+      await forum.save()
+
+      return response.ok(forum)
+    } catch (error) {
+      return response.badRequest({ error: error.message })
+    }
   }
 }

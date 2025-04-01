@@ -1,23 +1,27 @@
 import Forum from '#models/forum'
 
-export const forums = async () => {
+export const forumsList = async () => {
   try {
-    const res = await Forum.query().preload('topics', (topics) => {
-      topics.preload('posts', (posts) => {
-        posts.orderBy('created_at', 'desc').limit(25)
-      })
-    })
+    const forums = await Forum.query().preload('topics')
 
-    res.forEach((forum) => {
-      if (forum.topics.length > 0) {
-        forum.$extras.latestPost =
-          forum.topics.flatMap((t) => t.posts).sort((a, b) => b.createdAt - a.createdAt)[0] || null
-      } else {
-        forum.$extras.latestPost = null
+    for (const forum of forums) {
+      for (const topic of forum.topics) {
+        const latestPost = await topic
+          .related('posts')
+          .query()
+          .orderBy('created_at', 'desc')
+          .first()
+
+        if (
+          (latestPost !== null && !topic.$extras.latestPost) ||
+          (latestPost !== null && forum.$extras.latestPost?.createdAt.ts < latestPost.createdAt?.ts)
+        ) {
+          forum.$extras.latestPost = latestPost
+        }
       }
-    })
+    }
 
-    return res
+    return forums
   } catch (error) {
     console.error('Błąd podczas pobierania forów:', error)
     return []

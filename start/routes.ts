@@ -8,6 +8,7 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
 router.get('/', async () => {
   return {
@@ -17,18 +18,51 @@ router.get('/', async () => {
 
 const AuthController = () => import('#controllers/auth_controller')
 const PostController = () => import('#controllers/posts_controller')
+const TopicsController = () => import('#controllers/topics_controller')
 const ForumsController = () => import('#controllers/forums_controller')
 
 router.post('/login', [AuthController, 'login'])
 router.post('/register', [AuthController, 'register'])
 
-router.get('/check-admin', [AuthController, 'checkAdmin'])
+router
+  .group(() => {
+    router.get('/', [PostController, 'index']) //Lista postów dla danego topics -> potrzeba topic_id
+    router.post('/:topicId', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
+    router.delete('/:postId', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
+  })
+  .prefix('posts')
 
-router.post('/forums', [ForumsController, 'index'])
-router.get('/forums/:forumId/posts', [ForumsController, 'posts'])
+router
+  .group(() => {
+    router.get('/:forumId', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
+    router
+      .group(() => {
+        router.post('/:forumId', [TopicsController, 'store']) // + Dodawanie tematu -> admin/casual rozroznianie
+      })
+      .use([middleware.auth()])
+    //Edytowanie tematu -> nazwa, description? -> admin/twórca
+    //Usuwanie tematu -> admin/twórca -> co z postami?
+  })
+  .prefix('topics')
 
-// router.post('/topics/:topicId/posts', [TopicsController, 'index'])
+router
+  .group(() => {
+    router.get('/', [ForumsController, 'index']) // + lista for
+    router
+      .group(() => {
+        router.post('/', [ForumsController, 'store']) // + dodawanie nowych for -> admin
+        router.patch('forumId', [ForumsController, 'update']) // + Edytowanie istniejących for -> admin
+      })
+      .use([middleware.auth(), middleware.role('admin')])
+    //Usuwanie for -> admin -> co z topicami/postami?
+  })
+  .prefix('forums')
 
-router.post('/posts/:topicId', [PostController, 'store'])
-
-router.delete('/posts/:postId', [PostController, 'destroy'])
+/*
+ *** Middleware example ***
+ */
+router
+  .group(() => {
+    router.get('/check-admin', [AuthController, 'checkAdmin'])
+  })
+  .use([middleware.auth(), middleware.role('admin')])
