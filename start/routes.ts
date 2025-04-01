@@ -8,6 +8,7 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
 router.get('/', async () => {
   return {
@@ -22,10 +23,22 @@ const ForumsController = () => import('#controllers/forums_controller')
 router.post('/login', [AuthController, 'login'])
 router.post('/register', [AuthController, 'register'])
 
-router.get('/check-admin', [AuthController, 'checkAdmin'])
+router
+  .group(() => {
+    router.get('/', [PostController, 'index'])
+    router.post('/', [PostController, 'store'])
+    router.delete('/:id', [PostController, 'destroy'])
+  })
+  .prefix('posts')
 
-router.get('/posts', [PostController, 'index'])
-router.post('/posts', [PostController, 'store'])
-router.delete('/posts/:id', [PostController, 'destroy'])
+router
+  .group(() => {
+    router.get('/', [ForumsController, 'index'])
+  })
+  .prefix('forums')
 
-router.get('/forums', [ForumsController, 'index'])
+router
+  .group(() => {
+    router.get('/check-admin', [AuthController, 'checkAdmin'])
+  })
+  .use([middleware.auth(), middleware.role('admin')])
