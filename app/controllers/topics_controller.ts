@@ -9,17 +9,17 @@ export default class TopicsController {
     return response.ok(topics)
   }
   public async store({ params, request, response, auth }: HttpContext) {
-    const data = request.only(['name', 'is_primary'])
+    const data = request.only(['name', 'isPrimary'])
     const payload = await createTopicValidator.validate(data)
 
     const user = auth?.user
-    const isPrimary = user?.role === 'admin' ? (payload.is_primary ?? false) : false
+    const isPrimary = user?.role === 'admin' ? (payload.isPrimary ?? false) : false
 
     try {
       const topic = await Topic.create({
         name: payload.name,
         forumId: params.forumId,
-        is_primary: isPrimary,
+        isPrimary: isPrimary,
       })
       return response.created({ data: topic })
     } catch (error) {

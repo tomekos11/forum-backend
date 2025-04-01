@@ -15,7 +15,7 @@ export default class Topic extends BaseModel {
   declare forumId: number | null // Może być null, jeśli użytkownik zostanie usunięty
 
   @column()
-  declare is_primary: boolean
+  declare isPrimary: boolean
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
