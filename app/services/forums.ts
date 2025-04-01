@@ -14,7 +14,7 @@ export const forumsList = async () => {
 
         if (
           (latestPost !== null && !topic.$extras.latestPost) ||
-          forum.$extras.latestPost?.createdAt.ts < latestPost?.createdAt?.ts
+          (latestPost !== null && forum.$extras.latestPost?.createdAt.ts < latestPost.createdAt?.ts)
         ) {
           forum.$extras.latestPost = latestPost
         }
