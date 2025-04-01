@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, column, computed, hasMany } from '@adonisjs/lucid/orm'
 import Topic from './topic.js'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 
@@ -18,6 +18,11 @@ export default class Forum extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @computed()
+  public get latestPost() {
+    return this.$extras.latestPost || null
+  }
 
   @hasMany(() => Topic)
   declare topics: HasMany<typeof Topic>

@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 
 import User from '#models/user'
-import { Hash } from '@adonisjs/core/hash'
 
 export default class AuthController {
   public async login({ request, auth, response }: HttpContext) {
