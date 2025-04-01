@@ -1,4 +1,5 @@
 import Post from '#models/post'
+import Topic from '#models/topic'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PostController {
@@ -15,6 +16,12 @@ export default class PostController {
 
     if (!title || !content || !topicId) {
       return response.badRequest({ error: 'title i content i topicId są wymagane' })
+    }
+
+    const topic = await Topic.find(topicId)
+
+    if (!topic) {
+      return response.notFound({ error: 'Podany topicId nie istnieje' })
     }
 
     const post = await Post.create({
