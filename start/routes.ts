@@ -26,14 +26,15 @@ router.post('/register', [AuthController, 'register'])
 router
   .group(() => {
     router.get('/', [PostController, 'index'])
-    router.post('/', [PostController, 'store'])
-    router.delete('/:id', [PostController, 'destroy'])
+    router.post('/:topicId', [PostController, 'store'])
+    router.delete('/:postId', [PostController, 'destroy'])
   })
   .prefix('posts')
 
 router
   .group(() => {
     router.get('/', [ForumsController, 'index'])
+    router.get('/:forumId/posts', [ForumsController, 'posts'])
   })
   .prefix('forums')
 
@@ -42,3 +43,6 @@ router
     router.get('/check-admin', [AuthController, 'checkAdmin'])
   })
   .use([middleware.auth(), middleware.role('admin')])
+
+// router.post('/topics/:topicId/posts', [TopicsController, 'index'])
+
