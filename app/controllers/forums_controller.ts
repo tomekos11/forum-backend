@@ -36,4 +36,16 @@ export default class ForumsController {
       return response.badRequest({ error: error.message })
     }
   }
+
+  public async getName({ params, request, response }: HttpContext) {
+    try {
+      const forumId = request.qs().id
+
+      const forum = await Forum.findOrFail(forumId)
+
+      return forum.name
+    } catch (error) {
+      return response.badRequest({ error: error.message })
+    }
+  }
 }

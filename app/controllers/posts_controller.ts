@@ -1,11 +1,20 @@
 import Post from '#models/post'
+import Topic from '#models/topic'
 import { destroyPostValidator, editPostValidator, storePostValidator } from '#validators/post'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PostController {
-  public async index({ response }: HttpContext) {
-    const posts = await Post.query().orderBy('created_at', 'desc')
-    return response.ok(posts)
+  public async index({ request, response }: HttpContext) {
+    const topicId = request.param('topicId')
+
+    const topicWithPosts = await Topic.query()
+      .where('id', topicId)
+      .preload('posts', (postsQuery) => {
+        postsQuery.orderBy('created_at', 'desc')
+      })
+      .firstOrFail()
+
+    return response.ok(topicWithPosts)
   }
 
   public async store({ request, auth, response }: HttpContext) {

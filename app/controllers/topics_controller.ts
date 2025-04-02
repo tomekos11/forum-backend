@@ -8,6 +8,7 @@ export default class TopicsController {
     const topics = await topicsList(params.forumId)
     return response.ok(topics)
   }
+
   public async store({ params, request, response, auth }: HttpContext) {
     const data = request.only(['name', 'isPrimary'])
     const payload = await createTopicValidator.validate(data)
@@ -24,6 +25,22 @@ export default class TopicsController {
       return response.created({ data: topic })
     } catch (error) {
       return response.status(500)
+    }
+  }
+
+  public async getName({ params, request, response }: HttpContext) {
+    try {
+      const topicId = request.qs().id
+
+      console.log(topicId)
+
+      const topic = await Topic.findOrFail(topicId)
+
+      console.log(topic)
+
+      return topic.name
+    } catch (error) {
+      return response.badRequest({ error: error.message })
     }
   }
 }
