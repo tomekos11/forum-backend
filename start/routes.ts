@@ -26,7 +26,7 @@ router.post('/register', [AuthController, 'register'])
 
 router
   .group(() => {
-    router.get('/:topicId', [PostController, 'index']) // + Lista postów dla danego topics -> potrzeba topic_id
+    router.get('/:slug', [PostController, 'index']) // + Lista postów dla danego topics -> potrzeba topic_id
     router.post('/:topicId', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
     router.delete('/:postId', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
   })
@@ -34,7 +34,7 @@ router
 
 router.group(() => {
     router.get('/name', [TopicsController, 'getName'])
-    router.get('/:forumId', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
+    router.get('/:slug', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
 
     router.group(() => {
         router.post('/:forumId', [TopicsController, 'store']) // + Dodawanie tematu -> admin/casual rozroznianie

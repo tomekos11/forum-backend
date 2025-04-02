@@ -5,12 +5,12 @@ import Topic from '#models/topic'
 
 export default class TopicsController {
   public async index({ request, response }: HttpContext) {
-    const forumId = request.param('forumId')
+    const forumSlug = request.param('slug')
 
     const page = request.param('page') || 1
     const perPage = request.param('perPage') || 10
 
-    const topics = await topicsList(forumId, page, perPage)
+    const topics = await topicsList(forumSlug, page, perPage)
     return response.ok(topics)
   }
 
