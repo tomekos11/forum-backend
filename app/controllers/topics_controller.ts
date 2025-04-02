@@ -4,8 +4,13 @@ import { createTopicValidator } from '#validators/topic'
 import Topic from '#models/topic'
 
 export default class TopicsController {
-  public async index({ params, response }: HttpContext) {
-    const topics = await topicsList(params.forumId)
+  public async index({ request, response }: HttpContext) {
+    const forumId = request.param('forumId')
+
+    const page = request.param('page') || 1
+    const perPage = request.param('perPage') || 10
+
+    const topics = await topicsList(forumId, page, perPage)
     return response.ok(topics)
   }
 

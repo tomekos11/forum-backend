@@ -7,14 +7,29 @@ export default class PostController {
   public async index({ request, response }: HttpContext) {
     const topicId = request.param('topicId')
 
+    const page = request.param('page') || 1
+    const perPage = request.param('perPage') || 10
+
     const topicWithPosts = await Topic.query()
       .where('id', topicId)
-      .preload('posts', (postsQuery) => {
-        postsQuery.orderBy('created_at', 'desc')
-      })
       .firstOrFail()
 
-    return response.ok(topicWithPosts)
+    const posts = await topicWithPosts
+      .related('posts')
+      .query()
+      .preload('user')
+      .orderBy('created_at', 'desc')
+      .paginate(page, perPage)
+
+    const result = posts.serialize()
+
+    const finalResult = {
+      meta: result.meta,
+      data: result.data,
+      topic: topicWithPosts.serialize()
+    }
+
+    return response.ok(finalResult)
   }
 
   public async store({ request, auth, response }: HttpContext) {

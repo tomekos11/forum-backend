@@ -1,6 +1,6 @@
 import Forum from '#models/forum'
 
-export const topicsList = async (forumId: boolean) => {
+export const topicsList = async (forumId: boolean, page: number, perPage: number) => {
   try {
     const forum = await Forum.query().where('id', forumId).first()
 
@@ -11,8 +11,11 @@ export const topicsList = async (forumId: boolean) => {
     const topics = await forum.related('topics').query().preload('posts', (query) => {
       query.orderBy('created_at', 'desc').groupLimit(1)
       .preload('user')
-    })
+    }).withCount('posts').paginate(page, perPage)
 
+    topics.forEach(topic => {
+      topic.$extras.postCounter = topic.$extras.posts_count
+    })
     return topics
     // const topics = await forum.related('topics').query()
     // for (const topic of topics) {
