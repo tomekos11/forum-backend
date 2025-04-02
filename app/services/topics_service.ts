@@ -16,7 +16,18 @@ export const topicsList = async (forumId: boolean, page: number, perPage: number
     topics.forEach(topic => {
       topic.$extras.postCounter = topic.$extras.posts_count
     })
-    return topics
+
+    //return topics
+    const topicsSerialized = topics.serialize()
+
+    const primaryTopics = topicsSerialized.data.filter((topic) => topic.isPrimary)
+    const nonPrimaryTopics = topicsSerialized.data.filter((topic) => !topic.isPrimary)
+
+    return {
+      primaryTopics,
+      nonPrimaryTopics,
+      meta: topicsSerialized.meta
+    }
     // const topics = await forum.related('topics').query()
     // for (const topic of topics) {
     //   const latestPost = await topic.related('posts').query().orderBy('created_at', 'desc').first()
