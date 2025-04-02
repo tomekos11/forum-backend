@@ -8,6 +8,8 @@ export default class extends BaseSchema {
       table.increments('id').notNullable()
 
       table.string('name')
+      table.string('slug').unique()
+
       table.integer('forum_id').unsigned().nullable().references('forums.id').onDelete('CASCADE')
 
       table.boolean('is_primary').defaultTo(false)

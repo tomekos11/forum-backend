@@ -25,6 +25,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare role: 'user' | 'marketing' | 'moderator' | 'admin' // Ograniczenie do wartości z migracji
 
+  @column()
+  declare image: string
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

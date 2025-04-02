@@ -28,15 +28,11 @@ export default class TopicsController {
     }
   }
 
-  public async getName({ params, request, response }: HttpContext) {
+  public async getName({ request, response }: HttpContext) {
     try {
-      const topicId = request.qs().id
-
-      console.log(topicId)
-
-      const topic = await Topic.findOrFail(topicId)
-
-      console.log(topic)
+      const topicSlug = request.qs().slug
+  
+      const topic = await Topic.findByOrFail('slug', topicSlug)
 
       return topic.name
     } catch (error) {
