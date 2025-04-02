@@ -25,7 +25,7 @@ export default class Topic extends BaseModel {
 
   @computed()
   public get postCounter() {
-    return this.$extras.postCounter || null
+    return this.$extras.postCounter || 0
   }
 
   @belongsTo(() => Forum)
