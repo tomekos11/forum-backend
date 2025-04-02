@@ -24,8 +24,10 @@ export const topicsList = async (forumSlug: string, page: number, perPage: numbe
     const nonPrimaryTopics = topicsSerialized.data.filter((topic) => !topic.isPrimary)
 
     return {
-      primaryTopics,
-      nonPrimaryTopics,
+      topics: {
+        primaryTopics,
+        nonPrimaryTopics,
+      },
       meta: topicsSerialized.meta
     }
     // const topics = await forum.related('topics').query()

@@ -5,13 +5,13 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PostController {
   public async index({ request, response }: HttpContext) {
-    const topicId = request.param('topicId')
+    const topicSlug = request.param('slug')
 
     const page = request.param('page') || 1
     const perPage = request.param('perPage') || 10
 
     const topicWithPosts = await Topic.query()
-      .where('id', topicId)
+      .where('slug', topicSlug)
       .firstOrFail()
 
     const posts = await topicWithPosts
