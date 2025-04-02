@@ -24,6 +24,11 @@ export default class Forum extends BaseModel {
     return this.$extras.latestPost || null
   }
 
+  @computed()
+  public get postCounter() {
+    return this.$extras.postCounter || 0
+  }
+
   @hasMany(() => Topic)
   declare topics: HasMany<typeof Topic>
 }
