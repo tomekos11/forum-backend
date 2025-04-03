@@ -39,9 +39,9 @@ export default class ForumsController {
 
   public async getName({ params, request, response }: HttpContext) {
     try {
-      const forumId = request.qs().id
+      const forumSlug = request.qs().slug
 
-      const forum = await Forum.findOrFail(forumId)
+      const forum = await Forum.findByOrFail('slug', forumSlug)
 
       return forum.name
     } catch (error) {

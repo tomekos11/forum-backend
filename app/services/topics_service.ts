@@ -1,8 +1,8 @@
 import Forum from '#models/forum'
 
-export const topicsList = async (forumId: boolean, page: number, perPage: number) => {
+export const topicsList = async (forumSlug: string, page: number, perPage: number) => {
   try {
-    const forum = await Forum.query().where('id', forumId).first()
+    const forum = await Forum.query().where('slug', forumSlug).first()
 
     if (!forum) {
       return []
@@ -28,8 +28,10 @@ export const topicsList = async (forumId: boolean, page: number, perPage: number
     const nonPrimaryTopics = topicsSerialized.data.filter((topic) => !topic.isPrimary)
 
     return {
-      primaryTopics,
-      nonPrimaryTopics,
+      topics: {
+        primaryTopics,
+        nonPrimaryTopics,
+      },
       meta: topicsSerialized.meta,
     }
     // const topics = await forum.related('topics').query()

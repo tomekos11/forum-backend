@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, computed, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeSave, column, computed, hasMany } from '@adonisjs/lucid/orm'
 import Topic from './topic.js'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
+import slugify from 'slugify'
 
 export default class Forum extends BaseModel {
   @column({ isPrimary: true })
@@ -9,6 +10,9 @@ export default class Forum extends BaseModel {
 
   @column()
   declare name: string
+
+  @column()
+  declare slug: string
 
   @column()
   declare description: string
@@ -31,4 +35,11 @@ export default class Forum extends BaseModel {
 
   @hasMany(() => Topic)
   declare topics: HasMany<typeof Topic>
+
+  @beforeSave()
+    public static async generateSlug(forum: Forum) {
+      if (forum.$dirty.name) {
+        forum.slug = slugify(forum.name, { lower: true, strict: true })
+      }
+    }
 }
