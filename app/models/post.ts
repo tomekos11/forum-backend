@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo, beforeUpdate } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import Topic from './topic.js'
-
+import PostHistory from './post_history.js'
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
@@ -15,10 +15,10 @@ export default class Post extends BaseModel {
   declare topicId: number
 
   @column()
-  declare title: string
+  declare content: string
 
   @column()
-  declare content: string
+  declare isDeleted: boolean
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -31,4 +31,26 @@ export default class Post extends BaseModel {
 
   @belongsTo(() => Topic)
   declare topic: BelongsTo<typeof Topic>
+
+  @beforeUpdate()
+  public static async storeHistory(post: Post) {
+    await PostHistory.create({
+      postId: post.id,
+      userId: post.userId,
+      content: post.content,
+    })
+  }
+
+  public async deleteWithHistory(deletedByUserId: number) {
+    await PostHistory.create({
+      postId: this.id,
+      userId: this.userId,
+      content: this.content,
+      deletedBy: deletedByUserId,
+    })
+
+    this.content = '[Post został usunięty]'
+    this.isDeleted = true
+    await this.save()
+  }
 }

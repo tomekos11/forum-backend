@@ -10,9 +10,7 @@ export default class PostController {
     const page = request.param('page') || 1
     const perPage = request.param('perPage') || 10
 
-    const topicWithPosts = await Topic.query()
-      .where('id', topicId)
-      .firstOrFail()
+    const topicWithPosts = await Topic.query().where('id', topicId).firstOrFail()
 
     const posts = await topicWithPosts
       .related('posts')
@@ -26,7 +24,7 @@ export default class PostController {
     const finalResult = {
       meta: result.meta,
       data: result.data,
-      topic: topicWithPosts.serialize()
+      topic: topicWithPosts.serialize(),
     }
 
     return response.ok(finalResult)

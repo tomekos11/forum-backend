@@ -8,12 +8,16 @@ export const topicsList = async (forumId: boolean, page: number, perPage: number
       return []
     }
 
-    const topics = await forum.related('topics').query().preload('posts', (query) => {
-      query.orderBy('created_at', 'desc').groupLimit(1)
-      .preload('user')
-    }).withCount('posts').paginate(page, perPage)
+    const topics = await forum
+      .related('topics')
+      .query()
+      .preload('posts', (query) => {
+        query.orderBy('created_at', 'desc').groupLimit(1).preload('user')
+      })
+      .withCount('posts')
+      .paginate(page, perPage)
 
-    topics.forEach(topic => {
+    topics.forEach((topic) => {
       topic.$extras.postCounter = topic.$extras.posts_count
     })
 
@@ -26,7 +30,7 @@ export const topicsList = async (forumId: boolean, page: number, perPage: number
     return {
       primaryTopics,
       nonPrimaryTopics,
-      meta: topicsSerialized.meta
+      meta: topicsSerialized.meta,
     }
     // const topics = await forum.related('topics').query()
     // for (const topic of topics) {

@@ -3,50 +3,51 @@ import Post from '#models/post'
 
 export const forumsList = async () => {
   try {
+    // forums.forEach(forum => {
+    //   let latestPost: Post | null = null;
 
-      // forums.forEach(forum => {
-      //   let latestPost: Post | null = null;
+    //   forum.topics.forEach(topic => {
+    //     if (topic.posts && topic.posts.length > 0) {
+    //       const post = topic.posts[0]
 
-      //   forum.topics.forEach(topic => {
-      //     if (topic.posts && topic.posts.length > 0) {
-      //       const post = topic.posts[0]
+    //       if(!latestPost || latestPost.createdAt.toMillis < post.createdAt.toMillis) {
+    //         latestPost = post;
+    //         console.log(post.title)
+    //       }
+    //     }
+    //   })
+    //   forum.$extras.latestPost = latestPost;
+    // })
 
-      //       if(!latestPost || latestPost.createdAt.toMillis < post.createdAt.toMillis) {
-      //         latestPost = post;
-      //         console.log(post.title)
-      //       }
-      //     }
-      //   })
-      //   forum.$extras.latestPost = latestPost;
-      // })
+    // const finalResult = forums.map((forum) => {
+    //   const serializedForum = forum.serialize()
+    //   delete serializedForum.topics
+    //   return serializedForum
+    // })
 
-      // const finalResult = forums.map((forum) => {
-      //   const serializedForum = forum.serialize()
-      //   delete serializedForum.topics
-      //   return serializedForum
-      // })
+    // return finalResult
 
-      // return finalResult
-
-
-      const forums = await Forum.query().preload('topics', (topicsQuery) => {
-        topicsQuery.preload('posts', (postsQuery) => {
-            postsQuery.preload('user').orderBy('created_at', 'desc')
-        })
+    const forums = await Forum.query().preload('topics', (topicsQuery) => {
+      topicsQuery.preload('posts', (postsQuery) => {
+        postsQuery.preload('user').orderBy('created_at', 'desc')
+      })
     })
 
     for (const forum of forums) {
-        forum.$extras.postCounter = 0
-        for (const topic of forum.topics) {
-            forum.$extras.postCounter += topic.posts.length
-            const latestPost = topic.posts[0];
+      forum.$extras.postCounter = 0
+      for (const topic of forum.topics) {
+        forum.$extras.postCounter += topic.posts.length
+        const latestPost = topic.posts[0]
 
-            if (latestPost) {
-                if (!forum.$extras.latestPost || forum.$extras.latestPost.createdAt < latestPost.createdAt) {
-                    forum.$extras.latestPost = latestPost
-                }
-            }
+        if (latestPost) {
+          if (
+            !forum.$extras.latestPost ||
+            forum.$extras.latestPost.createdAt < latestPost.createdAt
+          ) {
+            forum.$extras.latestPost = latestPost
+          }
         }
+      }
     }
 
     const finalResult = forums.map((forum) => {
@@ -55,8 +56,7 @@ export const forumsList = async () => {
       return serializedForum
     })
 
-      return finalResult
-
+    return finalResult
   } catch (error) {
     console.error('Błąd podczas pobierania forów:', error)
     return []

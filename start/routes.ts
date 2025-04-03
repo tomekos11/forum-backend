@@ -32,26 +32,32 @@ router
   })
   .prefix('posts')
 
-router.group(() => {
+router
+  .group(() => {
     router.get('/name', [TopicsController, 'getName'])
     router.get('/:forumId', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
 
-    router.group(() => {
+    router
+      .group(() => {
         router.post('/:forumId', [TopicsController, 'store']) // + Dodawanie tematu -> admin/casual rozroznianie
-      }).use([middleware.auth()])
+      })
+      .use([middleware.auth()])
     //Edytowanie tematu -> nazwa, description? -> admin/twórca
     //Usuwanie tematu -> admin/twórca -> co z postami?
   })
   .prefix('topics')
 
-router.group(() => {
+router
+  .group(() => {
     router.get('/', [ForumsController, 'index']) // + lista for
     router.get('/name', [ForumsController, 'getName'])
 
-    router.group(() => {
+    router
+      .group(() => {
         router.post('/', [ForumsController, 'store']) // + dodawanie nowych for -> admin
         router.patch('forumId', [ForumsController, 'update']) // + Edytowanie istniejących for -> admin
-      }).use([middleware.auth(), middleware.role('admin')])
+      })
+      .use([middleware.auth(), middleware.role('admin')])
     //Usuwanie for -> admin -> co z topicami/postami?
   })
   .prefix('forums')
@@ -59,6 +65,8 @@ router.group(() => {
 /*
  *** Middleware example ***
  */
-router.group(() => {
+router
+  .group(() => {
     router.get('/check-admin', [AuthController, 'checkAdmin'])
-  }).use([middleware.auth(), middleware.role('admin')])
+  })
+  .use([middleware.auth(), middleware.role('admin')])
