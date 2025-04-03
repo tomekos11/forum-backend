@@ -1,7 +1,7 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'create_posts_histories'
+  protected tableName = 'post_histories'
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {

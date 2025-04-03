@@ -34,11 +34,14 @@ export default class Post extends BaseModel {
 
   @beforeUpdate()
   public static async storeHistory(post: Post) {
-    await PostHistory.create({
-      postId: post.id,
-      userId: post.userId,
-      content: post.content,
-    })
+    const originalContent = post.$original.content
+    if (!post.$dirty?.isDeleted) {
+      await PostHistory.create({
+        postId: post.id,
+        userId: post.userId,
+        content: originalContent,
+      })
+    }
   }
 
   public async deleteWithHistory(deletedByUserId: number) {

@@ -46,14 +46,14 @@ export default class PostController {
   }
 
   public async edit({ request, auth, response }: HttpContext) {
-    await auth.use('jwt').authenticate()
-    const user = auth.user!
+    const user = await auth.use('jwt').authenticate()
 
     const { content, postId } = await editPostValidator.validate(request.all())
 
     const post = await Post.query().where('id', postId).preload('user').firstOrFail()
 
-    if (user.role !== 'moderator' || post.userId === user.id) {
+    console.log(user.role, post.userId, user.id)
+    if (user.role !== 'admin' && user.role !== 'moderator' && post.userId !== user.id) {
       return response.forbidden({ error: 'Brak uprawnień' })
     }
 
@@ -64,18 +64,19 @@ export default class PostController {
   }
 
   public async destroy({ request, auth, response }: HttpContext) {
-    await auth.use('jwt').authenticate()
-    const user = auth.user!
+    const user = await auth.use('jwt').authenticate()
 
     const { postId } = await destroyPostValidator.validate(request.all())
 
     const post = await Post.query().where('id', postId).preload('user').firstOrFail()
 
-    if (user.role !== 'moderator' || post.userId === user.id) {
+    if (user.role !== 'admin' && user.role !== 'moderator' && post.userId !== user.id) {
       return response.forbidden({ error: 'Brak uprawnień' })
     }
-
-    await post.delete()
+    if (post.isDeleted) {
+      return response.forbidden({ error: 'Post został już usunięty' })
+    }
+    await post.deleteWithHistory(user.id)
     return response.ok({ message: 'Post został usunięty' })
   }
 }

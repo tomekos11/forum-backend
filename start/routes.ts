@@ -28,7 +28,8 @@ router
   .group(() => {
     router.get('/:slug', [PostController, 'index']) // + Lista postów dla danego topics -> potrzeba topic_id
     router.post('/:topicId', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
-    router.delete('/:postId', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
+    router.patch('/', [PostController, 'edit'])
+    router.delete('/', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
   })
   .prefix('posts')
 

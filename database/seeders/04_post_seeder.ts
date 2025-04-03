@@ -16,31 +16,26 @@ export default class extends BaseSeeder {
       {
         userId: moderator.id,
         topicId: 1,
-        title: 'Post Moderatora',
         content: 'To jest post stworzony przez moderatora.',
       },
       {
         userId: user1.id,
         topicId: 1,
-        title: 'Post Użytkownika 1',
         content: 'To jest post stworzony przez użytkownika 1.',
       },
       {
         userId: user1.id,
         topicId: 2,
-        title: '123',
         content: 'To jest post stworzony przez użytkownika 1.',
       },
       {
         userId: user1.id,
         topicId: 2,
-        title: '234',
         content: 'To jest post stworzony przez użytkownika 1.',
       },
       {
         userId: user2.id,
         topicId: 3,
-        title: 'Post Użytkownika 2',
         content: 'To jest post stworzony przez użytkownika 2.',
       },
     ]
