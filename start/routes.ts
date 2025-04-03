@@ -60,5 +60,5 @@ router.group(() => {
  *** Middleware example ***
  */
 router.group(() => {
-    router.get('/check-admin', [AuthController, 'checkAdmin'])
-  }).use([middleware.auth(), middleware.role('admin')])
+    router.get('/check-user', [AuthController, 'checkUser'])
+  }).use([middleware.auth()])

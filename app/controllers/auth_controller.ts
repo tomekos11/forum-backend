@@ -37,8 +37,13 @@ export default class AuthController {
     }
   }
 
-  public async checkAdmin({ auth, response }: HttpContext) {
-    await auth.use('jwt').authenticate()
-    return response.ok({ isAdmin: auth.user?.role === 'admin' })
+  public async checkUser({ auth, response }: HttpContext) {
+    try {
+      await auth.use('jwt').authenticate()
+
+      return response.ok({ user: auth.user })
+    } catch (error) {
+      return response.unauthorized({ message: 'Unauthorized, invalid token or no token provided' })
+    }
   }
 }
