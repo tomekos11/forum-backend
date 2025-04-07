@@ -3,12 +3,30 @@ import type { NextFn } from '@adonisjs/core/types/http'
 import redis from '@adonisjs/redis/services/main'
 
 export default class OnlineTrackerMiddleware {
-  async handle({ auth }: HttpContext, next: NextFn) {
+  async handle({ auth, request }: HttpContext, next: NextFn) {
     /**
      * Middleware logic goes here (before the next call)
      */
-    if (auth.user) {
-      await redis.setex(`user:online:${auth.user.id}`, 60 * 5, '1')
+    let userId: string | undefined
+
+    try {
+      const user = await auth.use('jwt').authenticate()
+      userId = user.id.toString()
+
+      try {
+        await redis.setex(`user:online:${userId}`, 60 * 5, '1')
+      } catch (redisError) {
+        console.error('Błąd przy zapisywaniu do Redis dla użytkownika:', redisError)
+      }
+    } catch (error) {
+      const sessionId = request.ip()
+      userId = sessionId
+
+      try {
+        await redis.setex(`guest:online:${userId}`, 60 * 5, '1')
+      } catch (redisError) {
+        console.error('Błąd przy zapisywaniu do Redis dla gościa:', redisError)
+      }
     }
 
     /**
