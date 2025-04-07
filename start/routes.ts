@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
+import { throttle } from '#start/limiter'
 
 router.get('/', async () => {
   return {
@@ -26,7 +27,7 @@ router.get('/online', [AuthController, 'online'])
 
 router
   .group(() => {
-    router.post('/login', [AuthController, 'login'])
+    router.post('/login', [AuthController, 'login']).use(throttle)
     router.post('/register', [AuthController, 'register'])
 
     router
