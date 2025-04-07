@@ -44,5 +44,6 @@ router.use([
 export const middleware = router.named({
   role: () => import('#middleware/role_middleware'),
   guest: () => import('#middleware/guest_middleware'),
-  auth: () => import('#middleware/auth_middleware')
+  auth: () => import('#middleware/auth_middleware'),
+  tracker: () => import('#middleware/online_tracker_middleware'),
 })
