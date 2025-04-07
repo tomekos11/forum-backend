@@ -23,6 +23,7 @@ const ForumsController = () => import('#controllers/forums_controller')
 
 router.post('/login', [AuthController, 'login'])
 router.post('/register', [AuthController, 'register'])
+router.get('/logout', [AuthController, 'logout']).use([middleware.auth()])
 
 router
   .group(() => {

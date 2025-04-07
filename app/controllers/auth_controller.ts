@@ -17,6 +17,11 @@ export default class AuthController {
     }
   }
 
+  public async logout({ response }: HttpContext) {
+    response.clearCookie('token')
+    return { message: 'Wylogowano' }
+  }
+
   public async register({ request, auth, response }: HttpContext) {
     const { username, password } = request.only(['username', 'password'])
 
