@@ -2,7 +2,6 @@ import vine from '@vinejs/vine'
 
 export const storePostValidator = vine.compile(
   vine.object({
-    title: vine.string().trim().minLength(6),
     content: vine.string().trim(),
     topicId: vine.number().exists({ table: 'topics', column: 'id' }),
   })

@@ -31,8 +31,7 @@ export default class PostController {
   }
 
   public async store({ request, auth, response }: HttpContext) {
-    await auth.use('jwt').authenticate()
-    const user = auth.user!
+    const user = await auth.use('jwt').authenticate()
 
     const { content, topicId } = await storePostValidator.validate(request.all())
 
@@ -41,6 +40,8 @@ export default class PostController {
       topicId,
       content,
     })
+
+    await post.load('user')
 
     return response.created({ message: 'Post dodany!', post })
   }
