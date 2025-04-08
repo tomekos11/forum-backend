@@ -7,8 +7,7 @@ export default class PostController {
   public async index({ request, response }: HttpContext) {
     const topicSlug = request.param('slug')
 
-    const page = request.param('page') || 1
-    const perPage = request.param('perPage') || 10
+    const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
 
     const topicWithPosts = await Topic.query().where('slug', topicSlug).firstOrFail()
 
