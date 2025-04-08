@@ -15,6 +15,9 @@ export default class extends BaseSeeder {
     ]
 
     // Zastosowanie createMany do zapisania wielu użytkowników
-    await User.createMany(users)
+    //await User.createMany(users)
+    for (const user of users) {
+      await User.create(user)
+    }
   }
 }

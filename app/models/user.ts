@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import type { HasMany, HasOne } from '@adonisjs/lucid/types/relations'
+import { afterCreate, BaseModel, column, hasMany, hasOne } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import Post from './post.js'
+import UserData from './user_data.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['username'],
@@ -25,9 +26,6 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare role: 'user' | 'marketing' | 'moderator' | 'admin' // Ograniczenie do wartości z migracji
 
-  @column()
-  declare image: string
-
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
@@ -37,5 +35,15 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @hasMany(() => Post)
   declare posts: HasMany<typeof Post> // Relacja 1:N – użytkownik może mieć wiele postów
 
+  @hasOne(() => UserData)
+  declare data: HasOne<typeof UserData>
+
   static accessTokens = DbAccessTokensProvider.forModel(User)
+
+  @afterCreate()
+  public static async createUserData(user: User) {
+    await UserData.create({
+      userId: user.id,
+    })
+  }
 }
