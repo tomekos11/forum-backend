@@ -16,7 +16,7 @@ export default class PostController {
       .related('posts')
       .query()
       .preload('user')
-      .orderBy('created_at', 'desc')
+      .orderBy('created_at', 'asc')
       .paginate(page, perPage)
 
     const result = posts.serialize()
