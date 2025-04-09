@@ -1,32 +1,7 @@
 import Forum from '#models/forum'
-import Post from '#models/post'
 
 export const forumsList = async () => {
   try {
-    // forums.forEach(forum => {
-    //   let latestPost: Post | null = null;
-
-    //   forum.topics.forEach(topic => {
-    //     if (topic.posts && topic.posts.length > 0) {
-    //       const post = topic.posts[0]
-
-    //       if(!latestPost || latestPost.createdAt.toMillis < post.createdAt.toMillis) {
-    //         latestPost = post;
-    //         console.log(post.title)
-    //       }
-    //     }
-    //   })
-    //   forum.$extras.latestPost = latestPost;
-    // })
-
-    // const finalResult = forums.map((forum) => {
-    //   const serializedForum = forum.serialize()
-    //   delete serializedForum.topics
-    //   return serializedForum
-    // })
-
-    // return finalResult
-
     const forums = await Forum.query().preload('topics', (topicsQuery) => {
       topicsQuery.preload('posts', (postsQuery) => {
         postsQuery.preload('user').orderBy('created_at', 'desc')

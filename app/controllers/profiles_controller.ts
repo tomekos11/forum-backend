@@ -5,7 +5,6 @@ import User from '#models/user'
 export default class ProfilesController {
   public async show({ request, response }: HttpContext) {
     try {
-      console.log(request.param('username'))
       const user = await User.query()
         .where('username', request.param('username'))
         .preload('data')

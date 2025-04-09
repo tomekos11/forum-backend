@@ -52,7 +52,6 @@ export default class PostController {
 
     const post = await Post.query().where('id', postId).preload('user').firstOrFail()
 
-    console.log(user.role, post.userId, user.id)
     if (user.role !== 'admin' && user.role !== 'moderator' && post.userId !== user.id) {
       return response.forbidden({ error: 'Brak uprawnień' })
     }
