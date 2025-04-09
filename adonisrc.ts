@@ -33,7 +33,8 @@ export default defineConfig({
     () => import('@adonisjs/lucid/database_provider'),
     () => import('@adonisjs/auth/auth_provider'),
     () => import('@adonisjs/redis/redis_provider'),
-    () => import('@adonisjs/limiter/limiter_provider')
+    () => import('@adonisjs/limiter/limiter_provider'),
+    () => import('@adonisjs/static/static_provider')
   ],
 
   /*
@@ -70,4 +71,8 @@ export default defineConfig({
     ],
     forceExit: false,
   },
+  metaFiles: [{
+    pattern: 'public/**',
+    reloadServer: false,
+  }]
 })

@@ -28,7 +28,6 @@ router.post('/register', [AuthController, 'register'])
 router.get('/logout', [AuthController, 'logout'])
 
 router.get('/online', [AuthController, 'online'])
-router.patch('/edit-profile', [ProfilesController, 'edit'])
 
 router
   .group(() => {
@@ -74,6 +73,12 @@ router
     router
       .group(() => {
         router.get('/:username', [ProfilesController, 'show'])
+        router
+          .group(() => {
+            router.patch('/profile', [ProfilesController, 'edit'])
+            router.post('/avatar', [ProfilesController, 'addPhoto'])
+          })
+          .use([middleware.auth()])
       })
       .prefix('users')
     /*
