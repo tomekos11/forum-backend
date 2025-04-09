@@ -72,14 +72,17 @@ router
       })
       .prefix('forums')
 
+    router
+      .group(() => {
+        router.get('/:username', [ProfilesController, 'show'])
+      })
+      .prefix('users')
     /*
      *** Middleware example ***
      */
 
-    router
-      .group(() => {
-        router.get('/check-user', [AuthController, 'checkUser'])
-      })
-      .use([middleware.auth()])
+    router.group(() => {
+      router.get('/check-user', [AuthController, 'checkUser'])
+    })
   })
   .use([middleware.tracker()])

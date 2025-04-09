@@ -8,6 +8,8 @@ export default class extends BaseSchema {
       table.increments('id').notNullable()
 
       table.integer('user_id').unsigned().nullable().references('users.id').onDelete('CASCADE')
+
+      table.string('bio').nullable()
       table.string('description').nullable()
       table.string('image').nullable()
 
