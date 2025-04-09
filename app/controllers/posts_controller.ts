@@ -7,8 +7,7 @@ export default class PostController {
   public async index({ request, response }: HttpContext) {
     const topicSlug = request.param('slug')
 
-    const page = request.param('page') || 1
-    const perPage = request.param('perPage') || 10
+    const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
 
     const topicWithPosts = await Topic.query().where('slug', topicSlug).firstOrFail()
 
@@ -16,7 +15,7 @@ export default class PostController {
       .related('posts')
       .query()
       .preload('user')
-      .orderBy('created_at', 'desc')
+      .orderBy('created_at', 'asc')
       .paginate(page, perPage)
 
     const result = posts.serialize()
@@ -31,8 +30,7 @@ export default class PostController {
   }
 
   public async store({ request, auth, response }: HttpContext) {
-    await auth.use('jwt').authenticate()
-    const user = auth.user!
+    const user = await auth.use('jwt').authenticate()
 
     const { content, topicId } = await storePostValidator.validate(request.all())
 
@@ -41,6 +39,8 @@ export default class PostController {
       topicId,
       content,
     })
+
+    await post.load('user')
 
     return response.created({ message: 'Post dodany!', post })
   }

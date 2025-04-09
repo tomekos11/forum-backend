@@ -22,19 +22,20 @@ const PostController = () => import('#controllers/posts_controller')
 const TopicsController = () => import('#controllers/topics_controller')
 const ForumsController = () => import('#controllers/forums_controller')
 const ProfilesController = () => import('#controllers/profiles_controller')
-router.get('/logout', [AuthController, 'logout'])
-router.get('/online', [AuthController, 'online'])
 
+router.post('/login', [AuthController, 'login']).use(throttle)
+router.post('/register', [AuthController, 'register'])
+router.get('/logout', [AuthController, 'logout'])
+
+router.get('/online', [AuthController, 'online'])
 router.patch('/edit-profile', [ProfilesController, 'edit'])
+
 router
   .group(() => {
-    router.post('/login', [AuthController, 'login']).use(throttle)
-    router.post('/register', [AuthController, 'register'])
-
     router
       .group(() => {
         router.get('/:slug', [PostController, 'index']) // + Lista postów dla danego topics -> potrzeba topic_id
-        router.post('/:topicId', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
+        router.post('/', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
         router.patch('/', [PostController, 'edit'])
         router.delete('/', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
       })
