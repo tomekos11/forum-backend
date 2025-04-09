@@ -21,10 +21,11 @@ const AuthController = () => import('#controllers/auth_controller')
 const PostController = () => import('#controllers/posts_controller')
 const TopicsController = () => import('#controllers/topics_controller')
 const ForumsController = () => import('#controllers/forums_controller')
-
+const ProfilesController = () => import('#controllers/profiles_controller')
 router.get('/logout', [AuthController, 'logout'])
 router.get('/online', [AuthController, 'online'])
 
+router.patch('/edit-profile', [ProfilesController, 'edit'])
 router
   .group(() => {
     router.post('/login', [AuthController, 'login']).use(throttle)
