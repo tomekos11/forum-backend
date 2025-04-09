@@ -12,6 +12,7 @@ export default class AuthController {
       const user = await User.verifyCredentials(username, password)
       await auth.use('jwt').generate(user)
 
+      await user.load('data')
       return user
     } catch (error) {
       return response.unauthorized({ error: 'Nieprawidłowe dane logowania' })
@@ -45,6 +46,7 @@ export default class AuthController {
 
       const user = await User.create({ username, password })
       await auth.use('jwt').generate(user)
+      await user.load('data')
 
       return user
     } catch (error) {
@@ -54,9 +56,10 @@ export default class AuthController {
 
   public async checkUser({ auth, response }: HttpContext) {
     try {
-      await auth.use('jwt').authenticate()
+      const user = await auth.use('jwt').authenticate()
+      await user.load('data')
 
-      return response.ok({ user: auth.user })
+      return response.ok({ user })
     } catch (error) {
       return response.unauthorized({ message: 'Unauthorized, invalid token or no token provided' })
     }
