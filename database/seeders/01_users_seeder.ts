@@ -16,8 +16,18 @@ export default class extends BaseSeeder {
 
     // Zastosowanie createMany do zapisania wielu użytkowników
     //await User.createMany(users)
+
+    User.disableHooks = true
     for (const user of users) {
-      await User.create(user)
+      const addedUser = await User.create(user)
+
+      await addedUser.related('data').create({
+        bio: 'Frontend Developer',
+        description: 'To jest mój opis. Jestem mega koxem',
+        image: 'https://i.pravatar.cc/150?img=' + addedUser.id,
+      })
     }
+
+    User.disableHooks = false
   }
 }

@@ -11,6 +11,9 @@ export default class UserData extends BaseModel {
   declare userId: number
 
   @column()
+  declare bio: null | string
+
+  @column()
   declare description: null | string
 
   @column()

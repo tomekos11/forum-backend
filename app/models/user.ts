@@ -14,6 +14,8 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
+  static disableHooks = false
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -42,6 +44,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @afterCreate()
   public static async createUserData(user: User) {
+    if (User.disableHooks) return
+
     await UserData.create({
       userId: user.id,
     })
