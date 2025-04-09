@@ -9,7 +9,6 @@ import User from '#models/user'
 export default class ProfilesController {
   public async show({ request, response }: HttpContext) {
     try {
-      console.log(request.param('username'))
       const user = await User.query()
         .where('username', request.param('username'))
         .preload('data')
@@ -25,15 +24,22 @@ export default class ProfilesController {
     try {
       const user = await auth.use('jwt').authenticate()
 
-      const { description } = await editProfileValidator.validate(request.all())
+      const { description, bio } = await editProfileValidator.validate(request.all())
       await user.load('data')
 
-      user.data.description = description
+      if (description !== undefined) {
+        user.data.description = description
+      }
+
+      if (bio !== undefined) {
+        user.data.bio = bio
+      }
 
       await user.data.save()
 
       return response.created({ message: 'Profil został zaktualizowany!', user })
     } catch (error) {
+      console.log(error.message)
       return response.status(422).send(error.messages)
     }
   }
@@ -49,11 +55,12 @@ export default class ProfilesController {
       })
 
       if (avatar) {
-        if (user.data.image) {
+        if (user.data.image && user.data.image.startsWith('/uploads/avatars/')) {
           const oldImagePath = join(
             app.publicPath('uploads/avatars'),
             user.data.image.split('/uploads/avatars/')[1]
           )
+
           if (existsSync(oldImagePath)) {
             unlinkSync(oldImagePath)
           }
