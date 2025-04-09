@@ -29,6 +29,7 @@ router.get('/logout', [AuthController, 'logout'])
 
 router.get('/online', [AuthController, 'online'])
 router.patch('/edit-profile', [ProfilesController, 'edit'])
+router.post('/avatar', [ProfilesController, 'addPhoto'])
 
 router
   .group(() => {
