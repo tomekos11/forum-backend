@@ -22,22 +22,35 @@ export default class ProfilesController {
 
   public async edit({ request, auth, response }: HttpContext) {
     try {
-      const user = await auth.use('jwt').authenticate()
+      const currentUser = await auth.use('jwt').authenticate()
 
-      const { description, bio } = await editProfileValidator.validate(request.all())
-      await user.load('data')
+      const { description, bio, username } = await editProfileValidator.validate(request.all())
+
+      let targetUser = currentUser
+
+      if (username && (currentUser.role === 'moderator' || currentUser.role === 'admin')) {
+        const foundUser = await User.findBy('username', username)
+
+        if (!foundUser) {
+          return response.status(404).send({ message: 'Użytkownik nie został znaleziony.' })
+        }
+
+        targetUser = foundUser
+      }
+
+      await targetUser.load('data')
 
       if (description !== undefined) {
-        user.data.description = description
+        targetUser.data.description = description
       }
 
       if (bio !== undefined) {
-        user.data.bio = bio
+        targetUser.data.bio = bio
       }
 
-      await user.data.save()
+      await targetUser.data.save()
 
-      return response.created({ message: 'Profil został zaktualizowany!', user })
+      return response.created({ message: 'Profil został zaktualizowany!', user: targetUser })
     } catch (error) {
       console.log(error.message)
       return response.status(422).send(error.messages)
@@ -46,8 +59,20 @@ export default class ProfilesController {
 
   public async addPhoto({ request, auth, response }: HttpContext) {
     try {
-      const user = await auth.use('jwt').authenticate()
-      await user.load('data')
+      const currentUser = await auth.use('jwt').authenticate()
+      const username = request.input('username')
+
+      let targetUser = currentUser
+
+      if (username && (currentUser.role === 'moderator' || currentUser.role === 'admin')) {
+        const foundUser = await User.findBy('username', username)
+        if (!foundUser) {
+          return response.status(404).send({ message: 'Użytkownik nie został znaleziony.' })
+        }
+        targetUser = foundUser
+      }
+
+      await targetUser.load('data')
 
       const avatar = request.file('avatar', {
         size: '2mb',
@@ -55,10 +80,10 @@ export default class ProfilesController {
       })
 
       if (avatar) {
-        if (user.data.image && user.data.image.startsWith('/uploads/avatars/')) {
+        if (targetUser.data.image && targetUser.data.image.startsWith('/uploads/avatars/')) {
           const oldImagePath = join(
             app.publicPath('uploads/avatars'),
-            user.data.image.split('/uploads/avatars/')[1]
+            targetUser.data.image.split('/uploads/avatars/')[1]
           )
 
           if (existsSync(oldImagePath)) {
@@ -72,14 +97,14 @@ export default class ProfilesController {
           overwrite: true,
         })
 
-        user.data.image = `/uploads/avatars/${fileName}`
+        targetUser.data.image = `/uploads/avatars/${fileName}`
       }
 
-      await user.data.save()
+      await targetUser.data.save()
 
       return {
         message: 'Profil zaktualizowany',
-        data: user.data,
+        data: targetUser.data,
       }
     } catch (error) {
       return response.status(422).send(error.message)
