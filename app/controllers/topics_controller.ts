@@ -7,8 +7,7 @@ export default class TopicsController {
   public async index({ request, response }: HttpContext) {
     const forumSlug = request.param('slug')
 
-    const page = request.param('page') || 1
-    const perPage = request.param('perPage') || 10
+    const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
 
     const topics = await topicsList(forumSlug, page, perPage)
     return response.ok(topics)
@@ -36,7 +35,7 @@ export default class TopicsController {
   public async getName({ request, response }: HttpContext) {
     try {
       const topicSlug = request.qs().slug
-  
+
       const topic = await Topic.findByOrFail('slug', topicSlug)
 
       return topic.name

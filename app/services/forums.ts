@@ -23,7 +23,13 @@ export const forumsList = async () => {
             !forum.$extras.latestPost ||
             forum.$extras.latestPost.createdAt < latestPost.createdAt
           ) {
-            forum.$extras.latestPost = latestPost
+            const serializedLatestPost = latestPost.serialize()
+            const serializedTopic = topic.serialize()
+            delete serializedTopic.posts
+
+            serializedLatestPost.topic = serializedTopic
+
+            forum.$extras.latestPost = serializedLatestPost
           }
         }
       }
