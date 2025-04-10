@@ -7,7 +7,7 @@ export default class ReactionsController {
     try {
       const { postId, reactionType } = request.only(['postId', 'reactionType'])
 
-      if (!['like', 'dislike'].includes(reactionType)) {
+      if (!['like', 'dislike', null].includes(reactionType)) {
         return response.status(422).send({ message: 'Nieprawidłowy typ reakcji' })
       }
 
@@ -24,21 +24,25 @@ export default class ReactionsController {
         .first()
 
       if (reaction) {
-        if (reaction.reactionType === reactionType) {
+        if (!reactionType) {
           await reaction.delete()
-          return response.status(200).send({ message: 'Reakcja została usunięta' })
+          return response.status(200).send({ message: 'Reakcja została usunięta', reaction: null })
         }
 
         reaction.reactionType = reactionType
         await reaction.save()
         return response.status(200).send({ message: 'Reakcja została zmieniona', reaction })
       } else {
-        reaction = await Reaction.create({
-          userId: user.id,
-          postId: postId,
-          reactionType: reactionType,
-        })
-        return response.status(200).send({ message: 'Reakcja została dodana', reaction })
+        if (reactionType) {
+          reaction = await Reaction.create({
+            userId: user.id,
+            postId: postId,
+            reactionType: reactionType,
+          })
+          return response.status(200).send({ message: 'Reakcja została dodana', reaction })
+        } else {
+          return response.status(200).send({ message: 'Nie można dodać reakcji', reaction: null })
+        }
       }
     } catch (error) {
       return response.status(500).send({ message: 'Wystąpił błąd', error: error.message })

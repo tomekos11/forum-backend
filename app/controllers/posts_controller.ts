@@ -5,7 +5,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Reaction from '#models/reaction'
 
 export default class PostController {
-  public async index({ request, response }: HttpContext) {
+  public async index({ request, auth, response }: HttpContext) {
     const topicSlug = request.param('slug')
 
     const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
@@ -24,11 +24,15 @@ export default class PostController {
       .paginate(page, perPage)
 
     const result = posts.serialize()
+
+    const user = await auth.use('jwt').user
+
     const groupedPosts = result.data.map((post) => {
       const reactionCounts = {
         like: 0,
         dislike: 0,
       }
+      let userReaction: string | null = null
 
       const reactions = post.reaction || []
 
@@ -38,11 +42,15 @@ export default class PostController {
         } else if (reaction.reactionType === 'dislike') {
           reactionCounts.dislike += 1
         }
+        if (user && reaction.userId === user.id) {
+          userReaction = reaction.reactionType
+        }
       })
 
       return {
         ...post,
         reaction: reactionCounts,
+        myReaction: userReaction,
       }
     })
 
