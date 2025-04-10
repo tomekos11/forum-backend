@@ -4,7 +4,11 @@ export const forumsList = async () => {
   try {
     const forums = await Forum.query().preload('topics', (topicsQuery) => {
       topicsQuery.preload('posts', (postsQuery) => {
-        postsQuery.preload('user').orderBy('created_at', 'desc')
+        postsQuery
+          .preload('user', (userQuery) => {
+            userQuery.preload('data')
+          })
+          .orderBy('created_at', 'desc')
       })
     })
 
