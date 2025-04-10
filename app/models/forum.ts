@@ -37,9 +37,9 @@ export default class Forum extends BaseModel {
   declare topics: HasMany<typeof Topic>
 
   @beforeSave()
-    public static async generateSlug(forum: Forum) {
-      if (forum.$dirty.name) {
-        forum.slug = slugify(forum.name, { lower: true, strict: true })
-      }
+  public static async generateSlug(forum: Forum) {
+    if (forum.$dirty.name) {
+      forum.slug = slugify(forum.name, { lower: true, strict: true })
     }
+  }
 }

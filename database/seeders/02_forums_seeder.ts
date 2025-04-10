@@ -12,6 +12,15 @@ export default class extends BaseSeeder {
         name: 'Atak CSRF',
         description: 'Tutaj znajdziesz przykłady ataków CSRF',
       },
+
+      {
+        name: 'Zasady korzystania z forum',
+        description: 'Tutaj znajdziesz zasady korzystania z forum',
+      },
+      {
+        name: 'System rang na forum',
+        description: 'W tym forum są szczegółowo opisane rangi oraz ich możliwości',
+      },
     ]
 
     await Forum.createMany(forums)

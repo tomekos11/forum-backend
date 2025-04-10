@@ -2,6 +2,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { topicsList } from '#services/topics_service'
 import { createTopicValidator } from '#validators/topic'
 import Topic from '#models/topic'
+import Forum from '#models/forum'
+import Post from '#models/post'
 
 export default class TopicsController {
   public async index({ request, response }: HttpContext) {
@@ -14,19 +16,31 @@ export default class TopicsController {
   }
 
   public async store({ params, request, response, auth }: HttpContext) {
-    const data = request.only(['name', 'isPrimary'])
+    const data = request.only(['name', 'isPrimary', 'postContent'])
     const payload = await createTopicValidator.validate(data)
 
-    const user = auth?.user
-    const isPrimary = user?.role === 'admin' ? (payload.isPrimary ?? false) : false
+    const user = await auth.use('jwt').authenticate()
+
+    const isPrimary = user.role === 'admin' ? (payload.isPrimary ?? false) : false
+
+    const forum = await Forum.query().where('slug', params.forumSlug).first()
 
     try {
-      const topic = await Topic.create({
-        name: payload.name,
-        forumId: params.forumId,
-        isPrimary: isPrimary,
-      })
-      return response.created({ data: topic })
+      if (forum) {
+        const topic = await Topic.create({
+          name: payload.name,
+          forumId: forum.id,
+          isPrimary: isPrimary,
+        })
+
+        await Post.create({
+          content: payload.postContent,
+          topicId: topic.id,
+          userId: user.id,
+        })
+
+        return response.created(topic)
+      }
     } catch (error) {
       return response.status(500)
     }

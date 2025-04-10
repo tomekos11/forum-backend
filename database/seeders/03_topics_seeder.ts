@@ -1,4 +1,3 @@
-import Forum from '#models/forum'
 import Topic from '#models/topic'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
@@ -8,9 +7,57 @@ export default class extends BaseSeeder {
       {
         name: 'Stored XSS',
         forumId: 1,
+        isPrimary: true,
       },
       {
         name: 'Reflected XSS',
+        forumId: 1,
+        isPrimary: true,
+      },
+      {
+        name: 'Blind XSS',
+        forumId: 1,
+        isPrimary: true,
+      },
+      {
+        name: 'DOM-Based XSS',
+        forumId: 1,
+        isPrimary: true,
+      },
+      {
+        name: 'Stored XSS (Advanced)',
+        forumId: 1,
+      },
+      {
+        name: 'Reflected XSS (Advanced)',
+        forumId: 1,
+      },
+      {
+        name: 'Mutated XSS',
+        forumId: 1,
+      },
+      {
+        name: 'XHR-Based XSS',
+        forumId: 1,
+      },
+      {
+        name: 'Flash XSS',
+        forumId: 1,
+      },
+      {
+        name: 'JavaScript Injection',
+        forumId: 1,
+      },
+      {
+        name: 'Cross-Site Script Inclusion (XSSI)',
+        forumId: 1,
+      },
+      {
+        name: 'Mam pytanie odnośnie XSS',
+        forumId: 1,
+      },
+      {
+        name: 'Problem XSS nuxt',
         forumId: 1,
       },
 
