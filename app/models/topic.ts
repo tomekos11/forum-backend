@@ -1,7 +1,15 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, hasMany, computed, beforeSave } from '@adonisjs/lucid/orm'
+import {
+  BaseModel,
+  belongsTo,
+  column,
+  hasMany,
+  computed,
+  beforeSave,
+  hasOne,
+} from '@adonisjs/lucid/orm'
 import Forum from './forum.js'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations'
 import Post from './post.js'
 import slugify from 'slugify'
 
@@ -21,6 +29,9 @@ export default class Topic extends BaseModel {
   @column()
   declare isPrimary: boolean
 
+  @column({ columnName: 'pinned_post_id' })
+  declare pinnedPostId: number | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
@@ -37,6 +48,11 @@ export default class Topic extends BaseModel {
 
   @hasMany(() => Post)
   declare posts: HasMany<typeof Post> // Relacja 1:N – użytkownik może mieć wiele postów
+
+  @belongsTo(() => Post, {
+    foreignKey: 'pinnedPostId',
+  })
+  declare pinnedPost: BelongsTo<typeof Post>
 
   @beforeSave()
   public static async generateSlug(topic: Topic) {

@@ -22,6 +22,7 @@ const PostController = () => import('#controllers/posts_controller')
 const TopicsController = () => import('#controllers/topics_controller')
 const ForumsController = () => import('#controllers/forums_controller')
 const ProfilesController = () => import('#controllers/profiles_controller')
+const ReactionSController = () => import('#controllers/reactions_controller')
 
 router.post('/login', [AuthController, 'login']).use(throttle)
 router.post('/register', [AuthController, 'register'])
@@ -37,6 +38,8 @@ router
         router.post('/', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
         router.patch('/', [PostController, 'edit'])
         router.delete('/', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
+
+        router.post('pin', [PostController, 'pinPost']).use([middleware.role('moderator')])
       })
       .prefix('posts')
 
@@ -81,6 +84,16 @@ router
           .use([middleware.auth()])
       })
       .prefix('users')
+
+    router
+      .group(() => {
+        router
+          .group(() => {
+            router.post('/', [ReactionSController, 'react'])
+          })
+          .use([middleware.auth()])
+      })
+      .prefix('reaction')
     /*
      *** Middleware example ***
      */
