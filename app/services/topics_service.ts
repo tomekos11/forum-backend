@@ -12,7 +12,10 @@ export const topicsList = async (forumSlug: string, page: number, perPage: numbe
       .related('topics')
       .query()
       .preload('posts', (query) => {
-        query.orderBy('created_at', 'desc').groupLimit(1).preload('user')
+        query
+          .orderBy('created_at', 'desc')
+          .groupLimit(1)
+          .preload('user', (userQuery) => userQuery.preload('data'))
       })
       .withCount('posts')
       .paginate(page, perPage)
