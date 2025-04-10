@@ -10,7 +10,10 @@ export default class PostController {
 
     const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
 
-    const topicWithPosts = await Topic.query().where('slug', topicSlug).firstOrFail()
+    const topicWithPosts = await Topic.query()
+      .where('slug', topicSlug)
+      .preload('pinnedPost')
+      .firstOrFail()
 
     const posts = await topicWithPosts
       .related('posts')
@@ -100,5 +103,29 @@ export default class PostController {
     }
     await post.deleteWithHistory(user.id)
     return response.ok({ message: 'Post został usunięty' })
+  }
+
+  public async pinPost({ request, response }: HttpContext) {
+    const { topicId, postId } = request.only(['topicId', 'postId'])
+
+    const topic = await Topic.find(topicId)
+    if (!topic) {
+      return response.notFound({ message: 'Nie znaleziono tematu' })
+    }
+
+    const post = await Post.find(postId)
+    if (!post || post.topicId !== topic.id) {
+      return response.badRequest({ message: 'Post nie należy do tematu' })
+    }
+
+    topic.pinnedPostId = post.id
+    await topic.save()
+
+    await topic.load('pinnedPost')
+
+    return response.ok({
+      message: 'Post przypięty',
+      topic,
+    })
   }
 }
