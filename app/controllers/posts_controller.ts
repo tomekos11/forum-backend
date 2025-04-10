@@ -2,6 +2,7 @@ import Post from '#models/post'
 import Topic from '#models/topic'
 import { destroyPostValidator, editPostValidator, storePostValidator } from '#validators/post'
 import type { HttpContext } from '@adonisjs/core/http'
+import Reaction from '#models/reaction'
 
 export default class PostController {
   public async index({ request, response }: HttpContext) {
@@ -15,14 +16,36 @@ export default class PostController {
       .related('posts')
       .query()
       .preload('user')
+      .preload('reaction')
       .orderBy('created_at', 'asc')
       .paginate(page, perPage)
 
     const result = posts.serialize()
+    const groupedPosts = result.data.map((post) => {
+      const reactionCounts = {
+        like: 0,
+        dislike: 0,
+      }
+
+      const reactions = post.reaction || []
+
+      reactions.forEach((reaction: Reaction) => {
+        if (reaction.reactionType === 'like') {
+          reactionCounts.like += 1
+        } else if (reaction.reactionType === 'dislike') {
+          reactionCounts.dislike += 1
+        }
+      })
+
+      return {
+        ...post,
+        reaction: reactionCounts,
+      }
+    })
 
     const finalResult = {
       meta: result.meta,
-      data: result.data,
+      data: groupedPosts,
       topic: topicWithPosts.serialize(),
     }
 

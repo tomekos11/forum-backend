@@ -15,7 +15,7 @@ export default class Reaction extends BaseModel {
   declare postId: number
 
   @column()
-  declare reactionType: 'like' | 'disklike'
+  declare reactionType: 'like' | 'dislike'
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

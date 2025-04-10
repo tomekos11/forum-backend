@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import { BaseModel, column, belongsTo, beforeUpdate } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, belongsTo, beforeUpdate, hasMany } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import Topic from './topic.js'
 import PostHistory from './post_history.js'
+import Reaction from './reaction.js'
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
@@ -31,6 +32,9 @@ export default class Post extends BaseModel {
 
   @belongsTo(() => Topic)
   declare topic: BelongsTo<typeof Topic>
+
+  @hasMany(() => Reaction)
+  declare reaction: HasMany<typeof Reaction>
 
   @beforeUpdate()
   public static async storeHistory(post: Post) {
