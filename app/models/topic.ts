@@ -41,7 +41,21 @@ export default class Topic extends BaseModel {
   @beforeSave()
   public static async generateSlug(topic: Topic) {
     if (topic.$dirty.name) {
-      topic.slug = slugify(topic.name, { lower: true, strict: true })
+      let baseSlug = slugify(topic.name, { lower: true, strict: true })
+      let slug = baseSlug
+      let exists = await Topic.query().where('slug', slug).first()
+
+      // Jeśli to edycja istniejącego topicu i slug się nie zmienia — przepuść
+      if (exists && exists.id === topic.id) return
+
+      // Dodawaj losowe cyfry, aż znajdziesz unikalny slug
+      while (exists) {
+        const randomNumber = Math.floor(1000 + Math.random() * 9000)
+        slug = `${baseSlug}-${randomNumber}`
+        exists = await Topic.query().where('slug', slug).first()
+      }
+
+      topic.slug = slug
     }
   }
 }

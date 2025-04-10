@@ -47,7 +47,7 @@ router
 
         router
           .group(() => {
-            router.post('/:forumId', [TopicsController, 'store']) // + Dodawanie tematu -> admin/casual rozroznianie
+            router.post('/:forumSlug', [TopicsController, 'store']) // + Dodawanie tematu -> admin/casual rozroznianie
           })
           .use([middleware.auth()])
         //Edytowanie tematu -> nazwa, description? -> admin/twórca
