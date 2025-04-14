@@ -18,7 +18,7 @@ export default class Post extends BaseModel {
   @column()
   declare content: string
 
-  @column()
+  @column({ serialize: Boolean })
   declare isDeleted: boolean
 
   @column.dateTime({ autoCreate: true })

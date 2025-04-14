@@ -57,4 +57,14 @@ export default class TopicsController {
       return response.badRequest({ error: error.message })
     }
   }
+
+  public async close({ request, response }: HttpContext) {
+    const forumSlug = request.param('slug')
+
+    const topic = await Topic.findByOrFail('slug', forumSlug)
+    topic.isClosed = true
+    await topic.save()
+
+    return response.ok(topic)
+  }
 }

@@ -26,8 +26,11 @@ export default class Topic extends BaseModel {
   @column()
   declare forumId: number | null // Może być null, jeśli użytkownik zostanie usunięty
 
-  @column()
+  @column({ serialize: Boolean })
   declare isPrimary: boolean
+
+  @column({ serialize: Boolean })
+  declare isClosed: boolean
 
   @column({ columnName: 'pinned_post_id' })
   declare pinnedPostId: number | null

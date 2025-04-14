@@ -74,6 +74,10 @@ export default class PostController {
 
     const { content, topicId } = await storePostValidator.validate(request.all())
 
+    const topic = await Topic.find(topicId)
+    if (!topic || topic.isClosed)
+      return response.badRequest({ message: 'Topic is closed or does not exist' })
+
     const post = await Post.create({
       userId: user.id,
       topicId,
