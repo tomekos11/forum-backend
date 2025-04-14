@@ -106,12 +106,14 @@ export default class PostController {
 
     const serializedTopic = topic.serialize()
 
-    const pinnedPost = ReactionService.summarizeReactions(
-      [serializedTopic.pinnedPost],
-      currentUser
-    )[0]
+    if (serializedTopic.pinnedPost) {
+      const pinnedPost = ReactionService.summarizeReactions(
+        [serializedTopic.pinnedPost],
+        currentUser
+      )[0]
 
-    serializedTopic.pinnedPost = pinnedPost
+      serializedTopic.pinnedPost = pinnedPost
+    }
 
     return response.ok({
       meta: meta,
