@@ -80,7 +80,14 @@ export default class ProfilesController {
       })
 
       if (avatar) {
-        if (targetUser.data.image && targetUser.data.image.startsWith('/uploads/avatars/')) {
+        const port = request.request.socket.localPort
+
+        if (
+          targetUser.data.image &&
+          targetUser.data.image.startsWith(
+            `${request.protocol()}://${request.hostname()}:${port}/uploads/avatars/`
+          )
+        ) {
           const oldImagePath = join(
             app.publicPath('uploads/avatars'),
             targetUser.data.image.split('/uploads/avatars/')[1]
@@ -97,7 +104,9 @@ export default class ProfilesController {
           overwrite: true,
         })
 
-        targetUser.data.image = `/uploads/avatars/${fileName}`
+        const fullUrl = `${request.protocol()}://${request.hostname()}:${port}/uploads/avatars/${fileName}`
+
+        targetUser.data.image = fullUrl
       }
 
       await targetUser.data.save()
