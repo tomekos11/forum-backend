@@ -155,6 +155,7 @@ export default class PostController {
     if (post.isDeleted) {
       return response.forbidden({ error: 'Post został już usunięty' })
     }
+
     await post.deleteWithHistory(user.id)
     return response.ok({ message: 'Post został usunięty' })
   }

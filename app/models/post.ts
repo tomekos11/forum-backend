@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
-import { BaseModel, column, belongsTo, beforeUpdate, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, belongsTo, beforeUpdate, hasMany, hasOne } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import Topic from './topic.js'
 import PostHistory from './post_history.js'
@@ -36,6 +36,11 @@ export default class Post extends BaseModel {
   @hasMany(() => Reaction)
   declare reaction: HasMany<typeof Reaction>
 
+  @hasOne(() => Topic, {
+    foreignKey: 'pinnedPostId',
+  })
+  declare pinnedInTopic: HasOne<typeof Topic>
+
   @beforeUpdate()
   public static async storeHistory(post: Post) {
     const originalContent = post.$original.content
@@ -55,6 +60,12 @@ export default class Post extends BaseModel {
       content: this.content,
       deletedBy: deletedByUserId,
     })
+
+    const pinnedTopic = await Topic.query().where('pinnedPostId', this.id).first()
+    if (pinnedTopic) {
+      pinnedTopic.pinnedPostId = null
+      await pinnedTopic.save()
+    }
 
     this.content = '[Post został usunięty]'
     this.isDeleted = true

@@ -32,7 +32,7 @@ export default class Topic extends BaseModel {
   @column({ serialize: Boolean })
   declare isClosed: boolean
 
-  @column({ columnName: 'pinned_post_id' })
+  @column()
   declare pinnedPostId: number | null
 
   @column.dateTime({ autoCreate: true })
