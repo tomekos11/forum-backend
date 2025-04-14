@@ -13,6 +13,8 @@ export default class extends BaseSchema {
       table.integer('forum_id').unsigned().nullable().references('forums.id').onDelete('CASCADE')
 
       table.boolean('is_primary').defaultTo(false)
+      table.boolean('is_closed').defaultTo(false)
+
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })

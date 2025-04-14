@@ -1,6 +1,11 @@
 import Post from '#models/post'
 import Topic from '#models/topic'
-import { destroyPostValidator, editPostValidator, storePostValidator } from '#validators/post'
+import {
+  destroyPostValidator,
+  editPostValidator,
+  storePostValidator,
+  indexPostValidator,
+} from '#validators/post'
 import type { HttpContext } from '@adonisjs/core/http'
 import Reaction from '#models/reaction'
 import ReactionService from '#services/reaction_service'
@@ -69,6 +74,9 @@ export default class PostController {
 
     const { content, topicId } = await storePostValidator.validate(request.all())
 
+    const topic = await Topic.find(topicId)
+    if (!topic || topic.isClosed) return response.badRequest({ message: 'Temat jest zamknięty.' })
+
     const post = await Post.create({
       userId: user.id,
       topicId,
@@ -82,7 +90,13 @@ export default class PostController {
 
   public async index({ request, auth, response }: HttpContext) {
     const topicSlug = request.param('slug')
-    const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
+
+    const {
+      page = 1,
+      perPage = 10,
+      sortBy = 'created_at',
+      order = 'asc',
+    } = await indexPostValidator.validate(request.only(['page', 'perPage', 'sortBy', 'order']))
 
     const topic = await Topic.query()
       .where('slug', topicSlug)
@@ -96,7 +110,11 @@ export default class PostController {
       .query()
       .preload('user')
       .preload('reaction')
-      .orderBy('created_at', 'asc')
+      .select('posts.*')
+      .leftJoin('reactions', 'posts.id', 'reactions.post_id')
+      .groupBy('posts.id')
+      .count('* as reaction_count')
+      .orderBy(sortBy, order)
       .paginate(page, perPage)
 
     const { data: posts, meta } = paginatedPosts.serialize()
@@ -152,6 +170,7 @@ export default class PostController {
     if (post.isDeleted) {
       return response.forbidden({ error: 'Post został już usunięty' })
     }
+
     await post.deleteWithHistory(user.id)
     return response.ok({ message: 'Post został usunięty' })
   }
@@ -164,6 +183,15 @@ export default class PostController {
       return response.notFound({ message: 'Nie znaleziono tematu' })
     }
 
+    if (!postId) {
+      topic.pinnedPostId = null
+      await topic.save()
+
+      return response.ok({
+        message: 'Post odpięty',
+        topic,
+      })
+    }
     const post = await Post.find(postId)
     if (!post || post.topicId !== topic.id) {
       return response.badRequest({ message: 'Post nie należy do tematu' })

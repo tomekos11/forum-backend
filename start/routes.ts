@@ -39,7 +39,7 @@ router
         router.patch('/', [PostController, 'edit'])
         router.delete('/', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
 
-        router.post('pin', [PostController, 'pinPost']).use([middleware.role('moderator')])
+        router.post('/pin', [PostController, 'pinPost']).use([middleware.role('moderator')])
       })
       .prefix('posts')
 
@@ -48,11 +48,8 @@ router
         router.get('/name', [TopicsController, 'getName'])
         router.get('/:slug', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
 
-        router
-          .group(() => {
-            router.post('/:forumSlug', [TopicsController, 'store']) // + Dodawanie tematu -> admin/casual rozroznianie
-          })
-          .use([middleware.auth()])
+        router.post('/:slug/close', [TopicsController, 'close']).use([middleware.role('moderator')])
+        router.post('/:forumSlug', [TopicsController, 'store']).use([middleware.auth()]) // + Dodawanie tematu -> admin/casual rozroznianie
         //Edytowanie tematu -> nazwa, description? -> admin/twórca
         //Usuwanie tematu -> admin/twórca -> co z postami?
       })
