@@ -72,6 +72,7 @@ router
 
     router
       .group(() => {
+        router.get('/find', [ProfilesController, 'find'])
         router.get('/:username', [ProfilesController, 'show'])
         router
           .group(() => {

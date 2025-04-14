@@ -110,4 +110,20 @@ export default class ProfilesController {
       return response.status(422).send(error.message)
     }
   }
+
+  public async find({ request, auth, response }: HttpContext) {
+    const { name } = request.only(['name'])
+
+    if (!name || name.trim() === '') {
+      return response.badRequest({ message: 'Brak nazwy do wyszukania' })
+    }
+
+    const users = await User.query()
+      .where('username', 'like', `${name}%`)
+      .limit(10)
+      .preload('data')
+      .select(['id', 'username'])
+
+    return response.ok(users)
+  }
 }
