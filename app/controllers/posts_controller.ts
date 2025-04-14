@@ -1,6 +1,11 @@
 import Post from '#models/post'
 import Topic from '#models/topic'
-import { destroyPostValidator, editPostValidator, storePostValidator } from '#validators/post'
+import {
+  destroyPostValidator,
+  editPostValidator,
+  storePostValidator,
+  indexPostValidator,
+} from '#validators/post'
 import type { HttpContext } from '@adonisjs/core/http'
 import Reaction from '#models/reaction'
 import ReactionService from '#services/reaction_service'
@@ -64,25 +69,31 @@ export default class PostController {
   //   return response.ok(finalResult)
   // }
 
-  // public async store({ request, auth, response }: HttpContext) {
-  //   const user = await auth.use('jwt').authenticate()
+  public async store({ request, auth, response }: HttpContext) {
+    const user = await auth.use('jwt').authenticate()
 
-  //   const { content, topicId } = await storePostValidator.validate(request.all())
+    const { content, topicId } = await storePostValidator.validate(request.all())
 
-  //   const post = await Post.create({
-  //     userId: user.id,
-  //     topicId,
-  //     content,
-  //   })
+    const post = await Post.create({
+      userId: user.id,
+      topicId,
+      content,
+    })
 
-  //   await post.load('user')
+    await post.load('user')
 
-  //   return response.created({ message: 'Post dodany!', post })
-  // }
+    return response.created({ message: 'Post dodany!', post })
+  }
 
   public async index({ request, auth, response }: HttpContext) {
     const topicSlug = request.param('slug')
-    const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
+
+    const {
+      page = 1,
+      perPage = 10,
+      sortBy = 'created_at',
+      order = 'asc',
+    } = await indexPostValidator.validate(request.only(['page', 'perPage', 'sortBy', 'order']))
 
     const topic = await Topic.query().where('slug', topicSlug).preload('pinnedPost').firstOrFail()
 
@@ -91,7 +102,11 @@ export default class PostController {
       .query()
       .preload('user')
       .preload('reaction')
-      .orderBy('created_at', 'asc')
+      .select('posts.*')
+      .leftJoin('reactions', 'posts.id', 'reactions.post_id')
+      .groupBy('posts.id')
+      .count('* as reaction_count')
+      .orderBy(sortBy, order)
       .paginate(page, perPage)
 
     const { data: posts, meta } = paginatedPosts.serialize()
