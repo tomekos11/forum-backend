@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { topicsList } from '#services/topics_service'
-import { createTopicValidator } from '#validators/topic'
+import { createTopicValidator, indexTopicValidator } from '#validators/topic'
 import Topic from '#models/topic'
 import Forum from '#models/forum'
 import Post from '#models/post'
@@ -9,9 +9,17 @@ export default class TopicsController {
   public async index({ request, response }: HttpContext) {
     const forumSlug = request.param('slug')
 
-    const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
+    const {
+      page = 1,
+      perPage = 10,
+      sortBy = 'created_at',
+      order = 'asc',
+      title,
+    } = await indexTopicValidator.validate(
+      request.only(['page', 'perPage', 'title', 'sortBy', 'order'])
+    )
 
-    const topics = await topicsList(forumSlug, page, perPage)
+    const topics = await topicsList(forumSlug, page, perPage, sortBy, order, title)
     return response.ok(topics)
   }
 
