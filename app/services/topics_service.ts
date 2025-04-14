@@ -1,6 +1,13 @@
 import Forum from '#models/forum'
 
-export const topicsList = async (forumSlug: string, page: number, perPage: number) => {
+export const topicsList = async (
+  forumSlug: string,
+  page: number,
+  perPage: number,
+  sortBy: string,
+  order: 'asc' | 'desc',
+  title?: string
+) => {
   try {
     const forum = await Forum.query().where('slug', forumSlug).first()
 
@@ -8,7 +15,7 @@ export const topicsList = async (forumSlug: string, page: number, perPage: numbe
       return []
     }
 
-    const topics = await forum
+    const topicsQuery = forum
       .related('topics')
       .query()
       .preload('posts', (query) => {
@@ -18,13 +25,19 @@ export const topicsList = async (forumSlug: string, page: number, perPage: numbe
           .preload('user', (userQuery) => userQuery.preload('data'))
       })
       .withCount('posts')
-      .paginate(page, perPage)
+
+    if (title) {
+      topicsQuery.where('name', 'like', `%${title}%`)
+    }
+
+    topicsQuery.orderBy(sortBy, order)
+
+    const topics = await topicsQuery.paginate(page, perPage)
 
     topics.forEach((topic) => {
       topic.$extras.postCounter = topic.$extras.posts_count
     })
 
-    //return topics
     const topicsSerialized = topics.serialize()
 
     const primaryTopics = topicsSerialized.data.filter((topic) => topic.isPrimary)
@@ -37,19 +50,6 @@ export const topicsList = async (forumSlug: string, page: number, perPage: numbe
       },
       meta: topicsSerialized.meta,
     }
-    // const topics = await forum.related('topics').query()
-    // for (const topic of topics) {
-    //   const latestPost = await topic.related('posts').query().orderBy('created_at', 'desc').first()
-    //   topic.$extras.latestPost = latestPost
-
-    //   const postCount = await topic.related('posts').query().count('* as count')
-    //   topic.$extras.postCounter = postCount[0]?.$extras?.count || 0
-    // }
-
-    // const primaryTopics = topics.filter((topic) => topic.isPrimary)
-    // const nonPrimaryTopics = topics.filter((topic) => !topic.isPrimary)
-
-    // return { primaryTopics, nonPrimaryTopics }
   } catch (error) {
     console.error('Błąd podczas pobierania forów:', error)
     return []
