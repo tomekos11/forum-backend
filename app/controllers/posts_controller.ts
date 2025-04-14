@@ -24,7 +24,7 @@ export default class PostController {
       content,
     })
 
-    await post.load('user')
+    await post.load('user', (userQuery) => userQuery.preload('data'))
 
     return response.created({ message: 'Post dodany!', post })
   }
