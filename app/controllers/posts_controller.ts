@@ -75,8 +75,7 @@ export default class PostController {
     const { content, topicId } = await storePostValidator.validate(request.all())
 
     const topic = await Topic.find(topicId)
-    if (!topic || topic.isClosed)
-      return response.badRequest({ message: 'Topic is closed or does not exist' })
+    if (!topic || topic.isClosed) return response.badRequest({ message: 'Temat jest zamknięty.' })
 
     const post = await Post.create({
       userId: user.id,
@@ -182,6 +181,15 @@ export default class PostController {
       return response.notFound({ message: 'Nie znaleziono tematu' })
     }
 
+    if (!postId) {
+      topic.pinnedPostId = null
+      await topic.save()
+
+      return response.ok({
+        message: 'Post odpięty',
+        topic,
+      })
+    }
     const post = await Post.find(postId)
     if (!post || post.topicId !== topic.id) {
       return response.badRequest({ message: 'Post nie należy do tematu' })
