@@ -99,7 +99,12 @@ export default class PostController {
       order = 'asc',
     } = await indexPostValidator.validate(request.only(['page', 'perPage', 'sortBy', 'order']))
 
-    const topic = await Topic.query().where('slug', topicSlug).preload('pinnedPost').firstOrFail()
+    const topic = await Topic.query()
+      .where('slug', topicSlug)
+      .preload('pinnedPost', (pinnedPostQuery) =>
+        pinnedPostQuery.preload('user').preload('reaction')
+      )
+      .firstOrFail()
 
     const paginatedPosts = await topic
       .related('posts')
@@ -118,10 +123,19 @@ export default class PostController {
 
     const data = ReactionService.summarizeReactions(posts, currentUser)
 
+    const serializedTopic = topic.serialize()
+
+    const pinnedPost = ReactionService.summarizeReactions(
+      [serializedTopic.pinnedPost],
+      currentUser
+    )[0]
+
+    serializedTopic.pinnedPost = pinnedPost
+
     return response.ok({
       meta: meta,
       data,
-      topic: topic.serialize(),
+      topic: serializedTopic,
     })
   }
 
@@ -160,7 +174,7 @@ export default class PostController {
     return response.ok({ message: 'Post został usunięty' })
   }
 
-  public async pinPost({ request, response }: HttpContext) {
+  public async pinPost({ request, response, auth }: HttpContext) {
     const { topicId, postId } = request.only(['topicId', 'postId'])
 
     const topic = await Topic.find(topicId)
@@ -177,6 +191,16 @@ export default class PostController {
     await topic.save()
 
     await topic.load('pinnedPost')
+
+    const serializedTopic = topic.serialize()
+    const currentUser = auth.use('jwt').user
+
+    const pinnedPost = ReactionService.summarizeReactions(
+      [serializedTopic.pinnedPost],
+      currentUser
+    )[0]
+
+    serializedTopic.pinnedPost = pinnedPost
 
     return response.ok({
       message: 'Post przypięty',
