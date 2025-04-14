@@ -64,27 +64,32 @@ export default class PostController {
   //   return response.ok(finalResult)
   // }
 
-  // public async store({ request, auth, response }: HttpContext) {
-  //   const user = await auth.use('jwt').authenticate()
+  public async store({ request, auth, response }: HttpContext) {
+    const user = await auth.use('jwt').authenticate()
 
-  //   const { content, topicId } = await storePostValidator.validate(request.all())
+    const { content, topicId } = await storePostValidator.validate(request.all())
 
-  //   const post = await Post.create({
-  //     userId: user.id,
-  //     topicId,
-  //     content,
-  //   })
+    const post = await Post.create({
+      userId: user.id,
+      topicId,
+      content,
+    })
 
-  //   await post.load('user')
+    await post.load('user')
 
-  //   return response.created({ message: 'Post dodany!', post })
-  // }
+    return response.created({ message: 'Post dodany!', post })
+  }
 
   public async index({ request, auth, response }: HttpContext) {
     const topicSlug = request.param('slug')
     const { page = 1, perPage = 10 } = request.only(['page', 'perPage'])
 
-    const topic = await Topic.query().where('slug', topicSlug).preload('pinnedPost').firstOrFail()
+    const topic = await Topic.query()
+      .where('slug', topicSlug)
+      .preload('pinnedPost', (pinnedPostQuery) =>
+        pinnedPostQuery.preload('user').preload('reaction')
+      )
+      .firstOrFail()
 
     const paginatedPosts = await topic
       .related('posts')
@@ -99,10 +104,19 @@ export default class PostController {
 
     const data = ReactionService.summarizeReactions(posts, currentUser)
 
+    const serializedTopic = topic.serialize()
+
+    const pinnedPost = ReactionService.summarizeReactions(
+      [serializedTopic.pinnedPost],
+      currentUser
+    )[0]
+
+    serializedTopic.pinnedPost = pinnedPost
+
     return response.ok({
       meta: meta,
       data,
-      topic: topic.serialize(),
+      topic: serializedTopic,
     })
   }
 
@@ -140,7 +154,7 @@ export default class PostController {
     return response.ok({ message: 'Post został usunięty' })
   }
 
-  public async pinPost({ request, response }: HttpContext) {
+  public async pinPost({ request, response, auth }: HttpContext) {
     const { topicId, postId } = request.only(['topicId', 'postId'])
 
     const topic = await Topic.find(topicId)
@@ -157,6 +171,16 @@ export default class PostController {
     await topic.save()
 
     await topic.load('pinnedPost')
+
+    const serializedTopic = topic.serialize()
+    const currentUser = auth.use('jwt').user
+
+    const pinnedPost = ReactionService.summarizeReactions(
+      [serializedTopic.pinnedPost],
+      currentUser
+    )[0]
+
+    serializedTopic.pinnedPost = pinnedPost
 
     return response.ok({
       message: 'Post przypięty',
