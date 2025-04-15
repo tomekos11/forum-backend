@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { topicsList } from '#services/topics_service'
-import { createTopicValidator, indexTopicValidator } from '#validators/topic'
+import { createTopicValidator, indexTopicValidator, followValidator } from '#validators/topic'
 import Topic from '#models/topic'
 import Forum from '#models/forum'
 import Post from '#models/post'
@@ -74,5 +74,34 @@ export default class TopicsController {
     await topic.save()
 
     return response.ok(topic)
+  }
+
+  public async follow({ request, auth, response }: HttpContext) {
+    const user = auth.use('jwt').user!
+
+    const { topicId, follow } = await followValidator.validate(request.only(['topicId', 'follow']))
+
+    const alreadyFollowed = await user
+      .related('followedTopics')
+      .query()
+      .where('topics.id', topicId)
+      .first()
+
+    if (follow && !alreadyFollowed) {
+      await user.related('followedTopics').attach([topicId])
+    } else if (!follow && alreadyFollowed) {
+      await user.related('followedTopics').detach([topicId])
+    }
+
+    return response.ok({
+      message: follow
+        ? alreadyFollowed
+          ? 'Już obserwujesz temat'
+          : 'Temat został zaobserwowany'
+        : alreadyFollowed
+          ? 'Przestałeś obserwować temat'
+          : 'Nie obserwowałeś tematu',
+      followed: follow,
+    })
   }
 }

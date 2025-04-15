@@ -7,11 +7,13 @@ import {
   computed,
   beforeSave,
   hasOne,
+  manyToMany,
 } from '@adonisjs/lucid/orm'
 import Forum from './forum.js'
-import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany, HasOne, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Post from './post.js'
 import slugify from 'slugify'
+import User from './user.js'
 
 export default class Topic extends BaseModel {
   @column({ isPrimary: true })
@@ -56,6 +58,11 @@ export default class Topic extends BaseModel {
     foreignKey: 'pinnedPostId',
   })
   declare pinnedPost: BelongsTo<typeof Post>
+
+  @manyToMany(() => User, {
+    pivotTable: 'topic_user_follows',
+  })
+  public followers!: ManyToMany<typeof User>
 
   @beforeSave()
   public static async generateSlug(topic: Topic) {

@@ -47,6 +47,7 @@ router.group(() => {
       router.get('/name', [TopicsController, 'getName'])
       router.get('/:slug', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
 
+      router.post('/follow', [TopicsController, 'follow']).use([middleware.auth()])
       router.post('/:slug/close', [TopicsController, 'close']).use([middleware.role('moderator')])
       router.post('/:forumSlug', [TopicsController, 'store']).use([middleware.auth()]) // + Dodawanie tematu -> admin/casual rozroznianie
       //Edytowanie tematu -> nazwa, description? -> admin/twórca

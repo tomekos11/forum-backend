@@ -1,12 +1,13 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import type { HasMany, HasOne } from '@adonisjs/lucid/types/relations'
-import { afterCreate, BaseModel, column, hasMany, hasOne } from '@adonisjs/lucid/orm'
+import type { HasMany, HasOne, ManyToMany } from '@adonisjs/lucid/types/relations'
+import { afterCreate, BaseModel, column, hasMany, hasOne, manyToMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import Post from './post.js'
 import UserData from './user_data.js'
+import Topic from './topic.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['username'],
@@ -39,6 +40,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @hasOne(() => UserData)
   declare data: HasOne<typeof UserData>
+
+  @manyToMany(() => Topic, {
+    pivotTable: 'topic_user_follows',
+  })
+  public followedTopics!: ManyToMany<typeof Topic>
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
 

@@ -11,7 +11,6 @@ export default class UserService {
     const cacheKey = this.getCacheKey(userId)
 
     const cached = await Cache.get({ key: cacheKey })
-    console.log(cached)
     if (cached) {
       return cached
     }
@@ -74,7 +73,6 @@ export default class UserService {
   }
 
   public static async updateReactionStatsCache(userId: number) {
-    console.log('apdejt', userId)
     setImmediate(async () => {
       try {
         const cacheKey = this.getCacheKey(userId)
