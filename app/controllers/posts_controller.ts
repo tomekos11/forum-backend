@@ -8,6 +8,7 @@ import {
 } from '#validators/post'
 import type { HttpContext } from '@adonisjs/core/http'
 import ReactionService from '#services/reaction_service'
+import UserService from '#services/user_service'
 
 export default class PostController {
   public async store({ request, auth, response }: HttpContext) {
@@ -26,6 +27,7 @@ export default class PostController {
 
     await post.load('user', (userQuery) => userQuery.preload('data'))
 
+    UserService.updatePostStatsCache(user.id) // Aktualizacja countera
     return response.created({ message: 'Post dodany!', post })
   }
 

@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Post from '#models/post'
 import Reaction from '#models/reaction'
 import ReactionService from '#services/reaction_service'
+import UserService from '#services/user_service'
 
 export default class ReactionsController {
   public async react({ request, response, auth }: HttpContext) {
@@ -48,8 +49,10 @@ export default class ReactionsController {
       // Załaduj zaktualizowany post z reakcjami i userem
       await post.load('reaction')
       await post.load('user')
-
+      await post.user.load('data')
       const postWithSummary = ReactionService.summarizeReactions([post.serialize()], user)[0]
+
+      UserService.updateReactionStatsCache(post.user.id) // Aktualizacja countera
 
       return response.status(200).send({
         message: 'Reakcja została zaktualizowana',

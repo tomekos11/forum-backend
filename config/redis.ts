@@ -23,7 +23,7 @@ const redisConfig = defineConfig({
       db: 0,
       keyPrefix: '',
       retryStrategy(times) {
-        return times > 10 ? null : times * 50
+        return times >= 1 ? null : 50
       },
     },
   },

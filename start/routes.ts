@@ -30,74 +30,73 @@ router.get('/logout', [AuthController, 'logout'])
 
 router.get('/online', [AuthController, 'online'])
 
-router
-  .group(() => {
-    router
-      .group(() => {
-        router.get('/:slug', [PostController, 'index']) // + Lista postów dla danego topics -> potrzeba topic_id
-        router.post('/', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
-        router.patch('/', [PostController, 'edit'])
-        router.delete('/', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
+router.group(() => {
+  router
+    .group(() => {
+      router.get('/:slug', [PostController, 'index']) // + Lista postów dla danego topics -> potrzeba topic_id
+      router.post('/', [PostController, 'store']) //Dodawanie posta do topica -> potrzeba topic_id
+      router.patch('/', [PostController, 'edit'])
+      router.delete('/', [PostController, 'destroy']) //Usuwanie posta -> admin/twórca -> potrzeba post_id
 
-        router.post('/pin', [PostController, 'pinPost']).use([middleware.role('moderator')])
-      })
-      .prefix('posts')
-
-    router
-      .group(() => {
-        router.get('/name', [TopicsController, 'getName'])
-        router.get('/:slug', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
-
-        router.post('/:slug/close', [TopicsController, 'close']).use([middleware.role('moderator')])
-        router.post('/:forumSlug', [TopicsController, 'store']).use([middleware.auth()]) // + Dodawanie tematu -> admin/casual rozroznianie
-        //Edytowanie tematu -> nazwa, description? -> admin/twórca
-        //Usuwanie tematu -> admin/twórca -> co z postami?
-      })
-      .prefix('topics')
-
-    router
-      .group(() => {
-        router.get('/', [ForumsController, 'index']) // + lista for
-        router.get('/name', [ForumsController, 'getName'])
-
-        router
-          .group(() => {
-            router.post('/', [ForumsController, 'store']) // + dodawanie nowych for -> admin
-            router.patch('forumId', [ForumsController, 'update']) // + Edytowanie istniejących for -> admin
-          })
-          .use([middleware.auth(), middleware.role('admin')])
-        //Usuwanie for -> admin -> co z topicami/postami?
-      })
-      .prefix('forums')
-
-    router
-      .group(() => {
-        router.get('/find', [ProfilesController, 'find'])
-        router.get('/:username', [ProfilesController, 'show'])
-        router
-          .group(() => {
-            router.patch('/profile', [ProfilesController, 'edit'])
-            router.post('/avatar', [ProfilesController, 'addPhoto'])
-          })
-          .use([middleware.auth()])
-      })
-      .prefix('users')
-
-    router
-      .group(() => {
-        router
-          .group(() => {
-            router.post('/', [ReactionSController, 'react'])
-          })
-          .use([middleware.auth()])
-      })
-      .prefix('reaction')
-    /*
-     *** Middleware example ***
-     */
-
-    router.group(() => {
-      router.get('/check-user', [AuthController, 'checkUser'])
+      router.post('/pin', [PostController, 'pinPost']).use([middleware.role('moderator')])
     })
+    .prefix('posts')
+
+  router
+    .group(() => {
+      router.get('/name', [TopicsController, 'getName'])
+      router.get('/:slug', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
+
+      router.post('/:slug/close', [TopicsController, 'close']).use([middleware.role('moderator')])
+      router.post('/:forumSlug', [TopicsController, 'store']).use([middleware.auth()]) // + Dodawanie tematu -> admin/casual rozroznianie
+      //Edytowanie tematu -> nazwa, description? -> admin/twórca
+      //Usuwanie tematu -> admin/twórca -> co z postami?
+    })
+    .prefix('topics')
+
+  router
+    .group(() => {
+      router.get('/', [ForumsController, 'index']) // + lista for
+      router.get('/name', [ForumsController, 'getName'])
+
+      router
+        .group(() => {
+          router.post('/', [ForumsController, 'store']) // + dodawanie nowych for -> admin
+          router.patch('forumId', [ForumsController, 'update']) // + Edytowanie istniejących for -> admin
+        })
+        .use([middleware.auth(), middleware.role('admin')])
+      //Usuwanie for -> admin -> co z topicami/postami?
+    })
+    .prefix('forums')
+
+  router
+    .group(() => {
+      router.get('/find', [ProfilesController, 'find'])
+      router.get('/:username', [ProfilesController, 'show'])
+      router
+        .group(() => {
+          router.patch('/profile', [ProfilesController, 'edit'])
+          router.post('/avatar', [ProfilesController, 'addPhoto'])
+        })
+        .use([middleware.auth()])
+    })
+    .prefix('users')
+
+  router
+    .group(() => {
+      router
+        .group(() => {
+          router.post('/', [ReactionSController, 'react'])
+        })
+        .use([middleware.auth()])
+    })
+    .prefix('reaction')
+  /*
+   *** Middleware example ***
+   */
+
+  router.group(() => {
+    router.get('/check-user', [AuthController, 'checkUser'])
   })
-  .use([middleware.tracker()])
+})
+//.use([middleware.tracker()])

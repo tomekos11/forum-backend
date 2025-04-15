@@ -5,6 +5,7 @@ import app from '@adonisjs/core/services/app'
 import { unlinkSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import User from '#models/user'
+import UserService from '#services/user_service'
 
 export default class ProfilesController {
   public async show({ request, response }: HttpContext) {
@@ -13,6 +14,9 @@ export default class ProfilesController {
         .where('username', request.param('username'))
         .preload('data')
         .firstOrFail()
+
+      // const userStats = await UserService.getUserStats(user.id)
+      // user.data.$extras.stats = userStats
 
       return user
     } catch (error) {
@@ -52,7 +56,6 @@ export default class ProfilesController {
 
       return response.created({ message: 'Profil został zaktualizowany!', user: targetUser })
     } catch (error) {
-      console.log(error.message)
       return response.status(422).send(error.messages)
     }
   }
