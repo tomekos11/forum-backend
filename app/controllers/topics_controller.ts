@@ -81,6 +81,7 @@ export default class TopicsController {
 
     const { topicId, follow } = await followValidator.validate(request.only(['topicId', 'follow']))
 
+    const topic = await Topic.findOrFail(topicId)
     const alreadyFollowed = await user
       .related('followedTopics')
       .query()
@@ -102,6 +103,7 @@ export default class TopicsController {
           ? 'Przestałeś obserwować temat'
           : 'Nie obserwowałeś tematu',
       followed: follow,
+      topic,
     })
   }
 }

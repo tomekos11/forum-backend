@@ -10,6 +10,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import ReactionService from '#services/reaction_service'
 import UserService from '#services/user_service'
 
+import NewPost from '#events/new_post'
+
 export default class PostController {
   public async store({ request, auth, response }: HttpContext) {
     const user = await auth.use('jwt').authenticate()
@@ -28,6 +30,8 @@ export default class PostController {
     await post.load('user', (userQuery) => userQuery.preload('data'))
 
     UserService.updatePostStatsCache(user.id) // Aktualizacja countera
+    NewPost.dispatch(post) //event emit
+
     return response.created({ message: 'Post dodany!', post })
   }
 

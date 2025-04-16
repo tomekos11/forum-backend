@@ -27,6 +27,7 @@ export const topicsList = async (
       .withCount('posts')
 
     if (filter) {
+      //TODO -> lepsza filtracja
       topicsQuery.where('name', 'like', `%${filter}%`)
     }
 
