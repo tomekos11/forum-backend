@@ -37,6 +37,7 @@ export default class PostController {
 
   public async index({ request, auth, response }: HttpContext) {
     const topicSlug = request.param('slug')
+    const currentUser = auth.use('jwt').user
 
     const {
       page = 1,
@@ -54,23 +55,33 @@ export default class PostController {
       )
       .firstOrFail()
 
-    const paginatedPosts = await topic
+    const query = topic
       .related('posts')
       .query()
       .preload('user', (userQuery) => {
         userQuery.preload('data')
       })
       .preload('reaction')
-      .select('posts.*')
-      .leftJoin('reactions', 'posts.id', 'reactions.post_id')
-      .groupBy('posts.id')
-      .count('* as reaction_count')
+    if (sortBy === 'reaction_count') {
+      query
+        .select('posts.*')
+        .leftJoin('reactions', 'posts.id', 'reactions.post_id')
+        .groupBy('posts.id')
+        .count('* as reaction_count')
+    }
+    query
+      .preload('notification', (notificationQuery) => {
+        notificationQuery.where('user_id', currentUser ? currentUser.id : 0).where('read', false)
+      })
       .orderBy(sortBy, order)
-      .paginate(page, perPage)
+
+    const paginatedPosts = await query.paginate(page, perPage)
 
     const { data: posts, meta } = paginatedPosts.serialize()
-    const currentUser = auth.use('jwt').user
 
+    posts.forEach((post) => {
+      post.notification = post.notification.length ? true : false
+    })
     const data = ReactionService.summarizeReactions(posts, currentUser)
 
     const serializedTopic = topic.serialize()
