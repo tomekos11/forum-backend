@@ -76,6 +76,16 @@ export default class TopicsController {
     return response.ok(topic)
   }
 
+  public async open({ request, response }: HttpContext) {
+    const forumSlug = request.param('slug')
+
+    const topic = await Topic.findByOrFail('slug', forumSlug)
+    topic.isClosed = false
+    await topic.save()
+
+    return response.ok(topic)
+  }
+
   public async follow({ request, auth, response }: HttpContext) {
     const user = auth.use('jwt').user!
 

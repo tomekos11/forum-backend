@@ -48,7 +48,10 @@ router
         router.get('/name', [TopicsController, 'getName'])
         router.get('/:slug', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
         router.post('/follow', [TopicsController, 'follow']).use([middleware.auth()])
-        router.post('/:slug/close', [TopicsController, 'close']).use([middleware.role('moderator')])
+        router
+          .patch('/:slug/close', [TopicsController, 'close'])
+          .use([middleware.role('moderator')])
+        router.patch('/:slug/open', [TopicsController, 'open']).use([middleware.role('moderator')])
         router.post('/:forumSlug', [TopicsController, 'store']).use([middleware.auth()]) // + Dodawanie tematu -> admin/casual rozroznianie
         //Edytowanie tematu -> nazwa, description? -> admin/twórca
         //Usuwanie tematu -> admin/twórca -> co z postami?
