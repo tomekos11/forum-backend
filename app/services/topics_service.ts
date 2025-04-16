@@ -6,7 +6,7 @@ export const topicsList = async (
   perPage: number,
   sortBy: string,
   order: 'asc' | 'desc',
-  title?: string
+  filter?: string
 ) => {
   try {
     const forum = await Forum.query().where('slug', forumSlug).first()
@@ -26,8 +26,8 @@ export const topicsList = async (
       })
       .withCount('posts')
 
-    if (title) {
-      topicsQuery.where('name', 'like', `%${title}%`)
+    if (filter) {
+      topicsQuery.where('name', 'like', `%${filter}%`)
     }
 
     topicsQuery.orderBy(sortBy, order)

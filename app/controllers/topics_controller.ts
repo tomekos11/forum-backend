@@ -14,12 +14,12 @@ export default class TopicsController {
       perPage = 10,
       sortBy = 'created_at',
       order = 'asc',
-      title,
+      filter,
     } = await indexTopicValidator.validate(
       request.only(['page', 'perPage', 'title', 'sortBy', 'order'])
     )
 
-    const topics = await topicsList(forumSlug, page, perPage, sortBy, order, title)
+    const topics = await topicsList(forumSlug, page, perPage, sortBy, order, filter)
     return response.ok(topics)
   }
 
