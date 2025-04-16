@@ -5,7 +5,6 @@ import app from '@adonisjs/core/services/app'
 import { unlinkSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import User from '#models/user'
-import UserService from '#services/user_service'
 
 export default class ProfilesController {
   public async show({ request, response }: HttpContext) {
@@ -15,9 +14,6 @@ export default class ProfilesController {
         .preload('data')
         .preload('followedTopics')
         .firstOrFail()
-
-      // const userStats = await UserService.getUserStats(user.id)
-      // user.data.$extras.stats = userStats
 
       return user
     } catch (error) {

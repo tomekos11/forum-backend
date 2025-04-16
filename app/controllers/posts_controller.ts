@@ -66,6 +66,9 @@ export default class PostController {
       .groupBy('posts.id')
       .count('* as reaction_count')
       .orderBy(sortBy, order)
+      // .leftJoin('notifications', function () {
+      //   this.on('posts.id', '=', 'notifications.post_id')
+      // })
       .paginate(page, perPage)
 
     const { data: posts, meta } = paginatedPosts.serialize()
