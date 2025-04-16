@@ -5,6 +5,7 @@ import User from './user.js'
 import Topic from './topic.js'
 import PostHistory from './post_history.js'
 import Reaction from './reaction.js'
+import Notification from './notification.js'
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
@@ -35,6 +36,9 @@ export default class Post extends BaseModel {
 
   @hasMany(() => Reaction)
   declare reaction: HasMany<typeof Reaction>
+
+  @hasMany(() => Notification)
+  declare notification: HasMany<typeof Notification>
 
   @hasOne(() => Topic, {
     foreignKey: 'pinnedPostId',
