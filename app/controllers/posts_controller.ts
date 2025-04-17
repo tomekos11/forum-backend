@@ -59,9 +59,9 @@ export default class PostController {
     const query = topic
       .related('posts')
       .query()
-      /*.preload('user', (userQuery) => {
+      .preload('user', (userQuery) => {
         userQuery.preload('data')
-      })*/
+      })
       .preload('reaction')
     if (sortBy === 'reaction_count') {
       query
