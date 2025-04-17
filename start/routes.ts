@@ -23,6 +23,7 @@ const TopicsController = () => import('#controllers/topics_controller')
 const ForumsController = () => import('#controllers/forums_controller')
 const ProfilesController = () => import('#controllers/profiles_controller')
 const ReactionSController = () => import('#controllers/reactions_controller')
+const NotificationsController = () => import('#controllers/notifications_controller')
 
 router.post('/login', [AuthController, 'login']).use(throttle)
 router.post('/register', [AuthController, 'register'])
@@ -94,5 +95,11 @@ router
           .use([middleware.auth()])
       })
       .prefix('reaction')
+
+    router
+      .group(() => {
+        router.patch('/', [NotificationsController, 'markAsRead']).use([middleware.auth()])
+      })
+      .prefix('notification')
   })
   .use([middleware.tracker()])
