@@ -11,7 +11,9 @@ export const indexTopicValidator = vine.compile(
   vine.object({
     page: vine.number().positive().optional(),
     perPage: vine.number().max(25).positive().optional(),
-    sortBy: vine.enum(['created_at', 'posts_count', 'name', 'is_closed'] as const).optional(),
+    sortBy: vine
+      .enum(['created_at', 'posts_count', 'name', 'is_closed', 'last_post'] as const)
+      .optional(),
     order: vine.enum(['asc', 'desc'] as const).optional(),
     filter: vine.string().optional(),
   })
