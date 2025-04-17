@@ -55,6 +55,11 @@ export default class PostController {
           .preload('user', (userQuery) => userQuery.preload('data'))
           .preload('reaction')
       )
+      .if(currentUser, (query) => {
+        query.preload('followers', (followersQuery) => {
+          followersQuery.where('users.id', currentUser!.id)
+        })
+      })
       .firstOrFail()
 
     const query = topic
@@ -99,6 +104,9 @@ export default class PostController {
     const data = ReactionService.summarizeReactions(posts, currentUser)
 
     const serializedTopic = topic.serialize()
+
+    serializedTopic.isFollowed = topic.followers?.length > 0
+    delete serializedTopic.followers
 
     if (serializedTopic.pinnedPost) {
       const pinnedPost = ReactionService.summarizeReactions(
