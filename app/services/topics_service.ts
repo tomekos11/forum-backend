@@ -16,9 +16,24 @@ export const topicsList = async (
       return []
     }
 
-    const topicsQuery = forum
+    const pinnedTopics = await forum
       .related('topics')
       .query()
+      .where('is_primary', true)
+      .preload('posts', (query) => {
+        query
+          .orderBy('created_at', 'desc')
+          .groupLimit(1)
+          .preload('user', (userQuery) => userQuery.preload('data'))
+      })
+      .withCount('posts')
+      .orderBy('created_at', 'desc')
+      .exec()
+
+    const regularTopicsQuery = forum
+      .related('topics')
+      .query()
+      .where('is_primary', false)
       .preload('posts', (query) => {
         query
           .orderBy('created_at', 'desc')
@@ -28,41 +43,44 @@ export const topicsList = async (
       .withCount('posts')
 
     if (filter) {
-      //TODO -> lepsza filtracja
-      topicsQuery.where('name', 'like', `%${filter}%`)
+      regularTopicsQuery.where('name', 'like', `%${filter}%`)
     }
 
     if (sortBy === 'last_post') {
-      topicsQuery.select('topics.*')
-      topicsQuery.select(
+      regularTopicsQuery.select('topics.*')
+      regularTopicsQuery.select(
         db.rawQuery(`(
-          SELECT MAX(posts.created_at)
-          FROM posts
-          WHERE posts.topic_id = topics.id
-        ) AS last_post_date`)
+        SELECT MAX(posts.created_at)
+        FROM posts
+        WHERE posts.topic_id = topics.id
+      ) AS last_post_date`)
       )
-      topicsQuery.orderBy('last_post_date', order)
+      regularTopicsQuery.orderBy('last_post_date', order)
     } else {
-      topicsQuery.orderBy(sortBy, order)
+      regularTopicsQuery.orderBy(sortBy, order)
     }
 
-    const topics = await topicsQuery.paginate(page, perPage)
+    const paginatedRegularTopics = await regularTopicsQuery.paginate(page, perPage)
 
-    topics.forEach((topic) => {
-      topic.$extras.postCounter = topic.$extras.posts_count
-    })
+    // 🔄 Zserializuj
+    const primaryTopics = pinnedTopics.map((topic) => ({
+      ...topic.serialize(),
+      postCounter: topic.$extras.posts_count,
+    }))
 
-    const topicsSerialized = topics.serialize()
+    const regularTopics = paginatedRegularTopics.serialize().data.map((topic) => ({
+      ...topic,
+      postCounter: topic.posts_count,
+    }))
 
-    const primaryTopics = topicsSerialized.data.filter((topic) => topic.isPrimary)
-    const nonPrimaryTopics = topicsSerialized.data.filter((topic) => !topic.isPrimary)
+    const meta = paginatedRegularTopics.serialize().meta
 
     return {
       topics: {
         primaryTopics,
-        nonPrimaryTopics,
+        nonPrimaryTopics: regularTopics,
       },
-      meta: topicsSerialized.meta,
+      meta,
     }
   } catch (error) {
     console.error('Błąd podczas pobierania forów:', error)
