@@ -5,6 +5,7 @@ import User from '#models/user'
 import redis from '@adonisjs/redis/services/main'
 import Notification from '#models/notification'
 import Post from '#models/post'
+import NotificationService from '#services/notification_service'
 
 export default class AuthController {
   public async login({ request, auth, response }: HttpContext) {
@@ -15,7 +16,10 @@ export default class AuthController {
       await auth.use('jwt').generate(user)
 
       await user.load('data')
-      return user
+
+      const unread = await NotificationService.getUnreadGroupedByTopic(user.id)
+
+      return response.ok({ user, notifications: unread })
     } catch (error) {
       return response.unauthorized({ error: 'Nieprawidłowe dane logowania' })
     }
@@ -61,40 +65,9 @@ export default class AuthController {
       const user = await auth.use('jwt').authenticate()
       await user.load('data')
 
-      const unreadNotifications = await Notification.query()
-        .where('user_id', user.id)
-        .where('read', false)
-        .groupBy('topic_id')
-        .select('*')
-        .count('* as total')
-        .preload('topic', (topicQuery) => {
-          topicQuery.preload('forum')
-        })
-      const mapped = await Promise.all(
-        unreadNotifications.map(async (row) => {
-          const topicId = row.topicId
-          const postId = row.postId
+      const unread = await NotificationService.getUnreadGroupedByTopic(user.id)
 
-          const postPosition = await Post.query()
-            .where('topic_id', topicId)
-            .where('id', '<=', postId)
-            .count('* as count')
-
-          const count = Number(postPosition[0].$extras.count)
-          const page = Math.ceil(count / 10)
-
-          return {
-            topicSlug: row.topic.slug,
-            forumSlug: row.topic.forum.slug,
-            count: Number.parseInt(row.$extras.total),
-            page,
-            perPage: 10,
-          }
-        })
-      )
-      //TODO dodac przekierowanie na topic k - topic + page
-      //TODO TESTY
-      return response.ok({ user, notifications: mapped })
+      return response.ok({ user, notifications: unread })
     } catch (error) {
       return response.unauthorized({ message: 'Unauthorized, invalid token or no token provided' })
     }
