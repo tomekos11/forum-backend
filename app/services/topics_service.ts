@@ -1,4 +1,5 @@
 import Forum from '#models/forum'
+import db from '@adonisjs/lucid/services/db'
 
 export const topicsList = async (
   forumSlug: string,
@@ -31,7 +32,19 @@ export const topicsList = async (
       topicsQuery.where('name', 'like', `%${filter}%`)
     }
 
-    topicsQuery.orderBy(sortBy, order)
+    if (sortBy === 'last_post') {
+      topicsQuery.select('topics.*')
+      topicsQuery.select(
+        db.rawQuery(`(
+          SELECT MAX(posts.created_at)
+          FROM posts
+          WHERE posts.topic_id = topics.id
+        ) AS last_post_date`)
+      )
+      topicsQuery.orderBy('last_post_date', order)
+    } else {
+      topicsQuery.orderBy(sortBy, order)
+    }
 
     const topics = await topicsQuery.paginate(page, perPage)
 
