@@ -103,7 +103,8 @@ export default class TopicsController {
     } else if (!follow && alreadyFollowed) {
       await user.related('followedTopics').detach([topicId])
     }
-
+    const topicSerialized = topic.serialize()
+    topicSerialized.isFollowed = follow
     return response.ok({
       message: follow
         ? alreadyFollowed
@@ -112,8 +113,7 @@ export default class TopicsController {
         : alreadyFollowed
           ? 'Przestałeś obserwować temat'
           : 'Nie obserwowałeś tematu',
-      followed: follow,
-      topic,
+      topic: topicSerialized,
     })
   }
 }
