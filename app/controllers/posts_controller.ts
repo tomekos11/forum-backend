@@ -11,6 +11,7 @@ import ReactionService from '#services/reaction_service'
 import UserService from '#services/user_service'
 
 import NewPost from '#events/new_post'
+import db from '@adonisjs/lucid/services/db'
 
 export default class PostController {
   public async store({ request, auth, response }: HttpContext) {
@@ -58,16 +59,23 @@ export default class PostController {
     const query = topic
       .related('posts')
       .query()
-      .preload('user', (userQuery) => {
+      /*.preload('user', (userQuery) => {
         userQuery.preload('data')
-      })
+      })*/
       .preload('reaction')
     if (sortBy === 'reaction_count') {
       query
         .select('posts.*')
         .leftJoin('reactions', 'posts.id', 'reactions.post_id')
         .groupBy('posts.id')
-        .count('* as reaction_count')
+        .select(
+          db.rawQuery(`
+            COUNT(CASE WHEN reactions.reaction_type = 'like' THEN 1 END)
+            -
+            COUNT(CASE WHEN reactions.reaction_type = 'dislike' THEN 1 END)
+            as reaction_count
+          `)
+        )
     }
     query
       .preload('notification', (notificationQuery) => {
