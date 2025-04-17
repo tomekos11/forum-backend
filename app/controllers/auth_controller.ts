@@ -65,43 +65,6 @@ export default class AuthController {
       const user = await auth.use('jwt').authenticate()
       await user.load('data')
 
-      const unreadNotifications = await Notification.query()
-        .where('user_id', user.id)
-        .where('read', false)
-        .groupBy('topic_id')
-        .select('*')
-        .count('* as total')
-        .preload('topic', (topicQuery) => {
-          topicQuery.preload('forum')
-        })
-      const mapped = await Promise.all(
-        unreadNotifications.map(async (row) => {
-          const topicId = row.topicId
-          const postId = row.postId
-          const topicName = row.topic.name
-
-          const postPosition = await Post.query()
-            .where('topic_id', topicId)
-            .where('id', '<=', postId)
-            .count('* as count')
-
-          const count = Number(postPosition[0].$extras.count)
-          const page = Math.ceil(count / 10)
-
-          return {
-            topicSlug: row.topic.slug,
-            topicName,
-            forumSlug: row.topic.forum.slug,
-            count: Number.parseInt(row.$extras.total),
-            page,
-            perPage: 10,
-          }
-        })
-      )
-      //TODO dodac przekierowanie na topic k - topic + page
-      //TODO TESTY
-      // return response.ok({ user, notifications: mapped })
-
       const unread = await NotificationService.getUnreadGroupedByTopic(user.id)
 
       return response.ok({ user, notifications: unread })
