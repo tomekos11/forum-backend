@@ -74,6 +74,7 @@ export default class AuthController {
         unreadNotifications.map(async (row) => {
           const topicId = row.topicId
           const postId = row.postId
+          const topicName = row.topic.name
 
           const postPosition = await Post.query()
             .where('topic_id', topicId)
@@ -85,6 +86,7 @@ export default class AuthController {
 
           return {
             topicSlug: row.topic.slug,
+            topicName,
             forumSlug: row.topic.forum.slug,
             count: Number.parseInt(row.$extras.total),
             page,
