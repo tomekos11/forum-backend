@@ -12,6 +12,7 @@ import UserService from '#services/user_service'
 
 import NewPost from '#events/new_post'
 import db from '@adonisjs/lucid/services/db'
+import MarkNotificationsRead from '#events/mark_notifications_read'
 
 export default class PostController {
   public async store({ request, auth, response }: HttpContext) {
@@ -85,11 +86,16 @@ export default class PostController {
 
     const paginatedPosts = await query.paginate(page, perPage)
 
+    if (currentUser) {
+      MarkNotificationsRead.dispatch(paginatedPosts)
+    }
+
     const { data: posts, meta } = paginatedPosts.serialize()
 
     posts.forEach((post) => {
       post.notification = post.notification.length ? true : false
     })
+
     const data = ReactionService.summarizeReactions(posts, currentUser)
 
     const serializedTopic = topic.serialize()
