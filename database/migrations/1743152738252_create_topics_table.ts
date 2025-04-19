@@ -11,12 +11,17 @@ export default class extends BaseSchema {
       table.string('slug').unique()
 
       table.integer('forum_id').unsigned().nullable().references('forums.id').onDelete('CASCADE')
+      table.integer('user_id').unsigned().nullable().references('users.id').onDelete('CASCADE')
 
       table.boolean('is_primary').defaultTo(false)
       table.boolean('is_closed').defaultTo(false)
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
+    })
+
+    await this.defer(async (db) => {
+      await db.rawQuery(`ALTER TABLE topics ADD FULLTEXT(name)`)
     })
   }
 

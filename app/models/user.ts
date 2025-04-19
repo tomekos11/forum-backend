@@ -41,6 +41,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @hasOne(() => UserData)
   declare data: HasOne<typeof UserData>
 
+  @hasMany(() => Topic)
+  declare topics: HasMany<typeof Topic>
+
   @manyToMany(() => Topic, {
     pivotTable: 'topic_user_follows',
   })

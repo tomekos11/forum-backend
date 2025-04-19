@@ -146,8 +146,19 @@ export default class PostController {
 
     const { postId } = await destroyPostValidator.validate(request.all())
 
-    const post = await Post.query().where('id', postId).preload('user').firstOrFail()
+    const post = await Post.query()
+      .where('id', postId)
+      .preload('user')
+      .preload('topic', (topicQuery) => {
+        topicQuery.preload('posts', (postsQuery) => {
+          postsQuery.orderBy('created_at', 'asc').limit(1)
+        })
+      })
+      .firstOrFail()
 
+    if (post.topic.posts[0]?.id === post.id) {
+      return response.forbidden({ error: 'Nie można usunąć pierwszego posta w temacie' })
+    }
     if (user.role !== 'admin' && user.role !== 'moderator' && post.userId !== user.id) {
       return response.forbidden({ error: 'Brak uprawnień' })
     }

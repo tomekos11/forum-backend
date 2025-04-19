@@ -1,47 +1,49 @@
 import Forum from '#models/forum'
+import Post from '#models/post'
+import db from '@adonisjs/lucid/services/db'
 
 export const forumsList = async () => {
   try {
-    const forums = await Forum.query().preload('topics', (topicsQuery) => {
-      topicsQuery.preload('posts', (postsQuery) => {
-        postsQuery
-          .preload('user', (userQuery) => {
-            userQuery.preload('data')
-          })
-          .orderBy('created_at', 'desc')
+    const forums = await Forum.query()
+      .withCount('topics')
+      .withAggregate('topics', (query) => {
+        query.join('posts', 'posts.topic_id', 'topics.id').count('posts.id').as('posts_count')
       })
-    })
 
-    for (const forum of forums) {
-      forum.$extras.postCounter = 0
-      for (const topic of forum.topics) {
-        forum.$extras.postCounter += topic.posts.length
-        const latestPost = topic.posts[0]
+    const latestPosts = await Post.query()
+      .select('posts.*')
+      .join('topics', 'topics.id', 'posts.topic_id')
+      .whereIn(
+        'topics.forum_id',
+        forums.map((f) => f.id)
+      )
+      .andWhereIn(
+        'posts.created_at',
+        Post.query()
+          .select(db.raw('MAX(posts.created_at)'))
+          .join('topics', 'topics.id', 'posts.topic_id')
+          .groupBy('topics.forum_id')
+          .whereIn(
+            'topics.forum_id',
+            forums.map((f) => f.id)
+          )
+      )
+      .orderBy('posts.created_at', 'desc')
+      .preload('user', (userQuery) => {
+        userQuery.preload('data')
+      })
+      .preload('topic')
 
-        if (latestPost) {
-          if (
-            !forum.$extras.latestPost ||
-            forum.$extras.latestPost.createdAt < latestPost.createdAt
-          ) {
-            const serializedLatestPost = latestPost.serialize()
-            const serializedTopic = topic.serialize()
-            delete serializedTopic.posts
+    return forums.map((forum) => {
+      const latestPost = latestPosts.find((p) => p.topic.forumId === forum.id)
 
-            serializedLatestPost.topic = serializedTopic
-
-            forum.$extras.latestPost = serializedLatestPost
-          }
-        }
+      return {
+        ...forum.serialize(),
+        topicsCount: forum.$extras.topics_count,
+        postCounter: forum.$extras.posts_count,
+        latestPost: latestPost?.serialize() ?? null,
       }
-    }
-
-    const finalResult = forums.map((forum) => {
-      const serializedForum = forum.serialize()
-      delete serializedForum.topics
-      return serializedForum
     })
-
-    return finalResult
   } catch (error) {
     console.error('Błąd podczas pobierania forów:', error)
     return []

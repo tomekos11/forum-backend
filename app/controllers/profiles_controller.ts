@@ -5,6 +5,8 @@ import app from '@adonisjs/core/services/app'
 import { unlinkSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import User from '#models/user'
+import Forum from '#models/forum'
+import Topic from '#models/topic'
 
 export default class ProfilesController {
   public async show({ request, response }: HttpContext) {
@@ -15,12 +17,46 @@ export default class ProfilesController {
         .preload('followedTopics', (followedTopicsQuery) => followedTopicsQuery.preload('forum'))
         .firstOrFail()
 
-      return user
+      const topics = await Topic.query()
+        .where('user_id', user.id)
+        .withCount('posts', (query) => {
+          query.as('postCounter')
+        })
+        .preload('forum')
+        .limit(3)
+        .orderBy('postCounter', 'desc')
+        .preload('posts', (query) => {
+          query.groupLimit(1)
+        })
+
+      return response.ok({ user, userTopics: topics })
     } catch (error) {
+      console.log(error)
       return response.status(422).send(error.messages)
     }
   }
 
+  public async showTopics({ request, response }: HttpContext) {
+    try {
+      const user = await User.query().where('username', request.param('username')).firstOrFail()
+
+      const topics = await Topic.query()
+        .where('user_id', user.id)
+        .withCount('posts', (query) => {
+          query.as('postCounter')
+        })
+        .preload('forum')
+        .orderBy('postCounter', 'desc')
+        .preload('posts', (query) => {
+          query.groupLimit(1)
+        })
+
+      return response.ok({ user, userTopics: topics })
+    } catch (error) {
+      console.log(error)
+      return response.status(422).send(error.messages)
+    }
+  }
   public async edit({ request, auth, response }: HttpContext) {
     try {
       const currentUser = await auth.use('jwt').authenticate()

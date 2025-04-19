@@ -78,6 +78,7 @@ router
       .group(() => {
         router.get('/find', [ProfilesController, 'find'])
         router.get('/:username', [ProfilesController, 'show'])
+        router.get('/:username/topics', [ProfilesController, 'showTopics'])
         router
           .group(() => {
             router.patch('/profile', [ProfilesController, 'edit'])

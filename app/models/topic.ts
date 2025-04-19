@@ -28,6 +28,9 @@ export default class Topic extends BaseModel {
   @column()
   declare forumId: number | null // Może być null, jeśli użytkownik zostanie usunięty
 
+  @column()
+  declare userId: number | null
+
   @column({ serialize: Boolean })
   declare isPrimary: boolean
 
@@ -63,6 +66,9 @@ export default class Topic extends BaseModel {
     pivotTable: 'topic_user_follows',
   })
   public followers!: ManyToMany<typeof User>
+
+  @belongsTo(() => User)
+  declare user: BelongsTo<typeof User>
 
   @beforeSave()
   public static async generateSlug(topic: Topic) {

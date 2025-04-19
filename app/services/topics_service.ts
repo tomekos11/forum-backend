@@ -43,7 +43,14 @@ export const topicsList = async (
       .withCount('posts')
 
     if (filter) {
-      regularTopicsQuery.where('name', 'like', `%${filter}%`)
+      filter = filter.replace(/[^a-zA-Z0-9 ]/g, '')
+      if (filter.trim().length > 0) {
+        filter = filter + '*'
+      }
+
+      regularTopicsQuery
+        .whereRaw(`MATCH(name) AGAINST(? IN BOOLEAN MODE)`, [filter])
+        .orderByRaw(`MATCH(name) AGAINST(? IN BOOLEAN MODE) DESC`, [filter])
     }
 
     if (sortBy === 'last_post') {
@@ -62,7 +69,6 @@ export const topicsList = async (
 
     const paginatedRegularTopics = await regularTopicsQuery.paginate(page, perPage)
 
-    // 🔄 Zserializuj
     const primaryTopics = pinnedTopics.map((topic) => ({
       ...topic.serialize(),
       postCounter: topic.$extras.posts_count,
