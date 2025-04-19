@@ -69,8 +69,6 @@ export const topicsList = async (
 
     const paginatedRegularTopics = await regularTopicsQuery.paginate(page, perPage)
 
-    return paginatedRegularTopics
-    // 🔄 Zserializuj
     const primaryTopics = pinnedTopics.map((topic) => ({
       ...topic.serialize(),
       postCounter: topic.$extras.posts_count,
