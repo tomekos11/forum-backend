@@ -29,6 +29,7 @@ router.post('/login', [AuthController, 'login']).use(throttle)
 router.post('/register', [AuthController, 'register'])
 router.get('/logout', [AuthController, 'logout'])
 
+router.get('/is-api-online', () => true)
 router.get('/online', [AuthController, 'online'])
 router.get('/check-user', [AuthController, 'checkUser'])
 
