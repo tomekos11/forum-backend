@@ -16,7 +16,7 @@ export default class TopicsController {
       order = 'asc',
       filter,
     } = await indexTopicValidator.validate(
-      request.only(['page', 'perPage', 'title', 'sortBy', 'order'])
+      request.only(['page', 'perPage', 'title', 'sortBy', 'order', 'filter'])
     )
 
     const topics = await topicsList(forumSlug, page, perPage, sortBy, order, filter)

@@ -18,6 +18,10 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })
+
+    await this.defer(async (db) => {
+      await db.rawQuery(`ALTER TABLE topics ADD FULLTEXT(name)`)
+    })
   }
 
   async down() {
