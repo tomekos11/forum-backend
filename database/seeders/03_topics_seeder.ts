@@ -8,16 +8,19 @@ export default class extends BaseSeeder {
         name: 'Stored XSS',
         forumId: 1,
         isPrimary: true,
+        userId: 3,
       },
       {
         name: 'Reflected XSS',
         forumId: 1,
         isPrimary: true,
+        userId: 3,
       },
       {
         name: 'Blind XSS',
         forumId: 1,
         isPrimary: true,
+        userId: 4,
       },
       {
         name: 'DOM-Based XSS',
