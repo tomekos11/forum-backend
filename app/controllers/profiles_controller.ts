@@ -5,7 +5,6 @@ import app from '@adonisjs/core/services/app'
 import { unlinkSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import User from '#models/user'
-import Forum from '#models/forum'
 import Topic from '#models/topic'
 
 export default class ProfilesController {
