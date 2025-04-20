@@ -39,6 +39,7 @@ export default class TopicsController {
           name: payload.name,
           forumId: forum.id,
           isPrimary: isPrimary,
+          userId: user.id,
         })
 
         await Post.create({
@@ -46,6 +47,8 @@ export default class TopicsController {
           topicId: topic.id,
           userId: user.id,
         })
+
+        await user.related('followedTopics').attach([topic.id])
 
         return response.created(topic)
       }
