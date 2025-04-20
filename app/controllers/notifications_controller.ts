@@ -18,8 +18,72 @@ export default class NotificationsController {
       .andWhere('read', false)
       .update({ read: true })
 
-    const unread = await NotificationService.getUnreadGroupedByTopic(user.id)
+    const unread = await NotificationService.getUnreadGroupedByTopic(user!.id)
 
     return response.ok({ notifications: unread })
+  }
+  public async notifyAll({ auth, response }: HttpContext) {
+    const user = await auth.use('jwt').user!
+
+    const notificationsAll = await Notification.query()
+      .where('user_id', user.id)
+      .preload('post', (query) => {
+        query.select('*')
+      })
+      .orderBy('created_at', 'desc')
+      .preload('topic', (query) => {
+        query
+          .select('*')
+          .preload('forum')
+          .withCount('posts', (topicQuery) => {
+            topicQuery.as('postCounter')
+          })
+      })
+
+    const grouped: Record<number, { topic: Topic; notifications: Notification[] }> = {}
+
+    for (const noti of notificationsAll) {
+      const topicId = noti.topicId
+
+      if (!grouped[topicId]) {
+        grouped[topicId] = {
+          topic: noti.topic,
+          notifications: [],
+        }
+      }
+      grouped[topicId].notifications.push(noti)
+    }
+
+    const unreadTopics = []
+    const readTopics = []
+
+    for (const topicId in grouped) {
+      const { topic, notifications } = grouped[topicId]
+
+      const unread = notifications.filter((n) => !n.read)
+      const lastPostAt = notifications.map((n) => n.post?.createdAt || n.createdAt)?.[0]
+
+      if (unread.length === 0) {
+        // Wszystko przeczytane
+        const lastReadAt = notifications.map((n) => n.updatedAt)?.[0]
+
+        readTopics.push({
+          topic,
+          lastPostAt,
+          lastReadAt,
+        })
+      } else {
+        unreadTopics.push({
+          topic,
+          unreadCount: unread.length,
+          lastPostAt,
+        })
+      }
+    }
+
+    return response.ok({
+      unread: unreadTopics,
+      read: readTopics,
+    })
   }
 }

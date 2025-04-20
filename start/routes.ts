@@ -97,6 +97,7 @@ router
     router
       .group(() => {
         router.patch('/', [NotificationsController, 'markAsRead']).use([middleware.auth()])
+        router.get('/', [NotificationsController, 'notifyAll']).use([middleware.auth()])
       })
       .prefix('notification')
   })
