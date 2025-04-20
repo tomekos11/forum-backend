@@ -1,7 +1,8 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { forumsList } from '#services/forums'
-import { createForumValidator } from '#validators/forum'
+import { createForumValidator, searchTopicValidator } from '#validators/forum'
 import Forum from '#models/forum'
+import Topic from '#models/topic'
 
 export default class ForumsController {
   public async index({ response }: HttpContext) {
@@ -49,5 +50,42 @@ export default class ForumsController {
     }
   }
 
-  public async findTopic({ request, auth, response }: HttpContext) {}
+  public async findTopic({ request, auth, response }: HttpContext) {
+    let { filter } = await searchTopicValidator.validate(request.only(['filter']))
+
+    if (!filter) {
+      return response.badRequest({ message: 'Brakuje frazy do wyszukania.' })
+    }
+
+    filter = filter.replace(/[^a-zA-Z0-9 ]/g, '')
+    filter = filter.trim()
+
+    if (filter.length === 0) {
+      return response.ok([])
+    }
+
+    const searchQuery = filter + '*'
+
+    // const topics = await Topic.query()
+    //   .withCount('posts', (topicQueryCount) => {
+    //     topicQueryCount.as('postCounter')
+    //   })
+    //   .whereRaw(`MATCH(name) AGAINST(? IN BOOLEAN MODE)`, [searchQuery])
+    //   .orderByRaw(`MATCH(name) AGAINST(? IN BOOLEAN MODE) DESC`, [searchQuery])
+    //   .preload('forum')
+
+    // return response.ok(topics)
+
+    const forums = await Forum.query().preload('topics', (topicQuery) => {
+      topicQuery
+        .whereRaw(`MATCH(name) AGAINST(? IN BOOLEAN MODE)`, [searchQuery])
+        .orderByRaw(`MATCH(name) AGAINST(? IN BOOLEAN MODE) DESC`, [searchQuery])
+        .withCount('posts', (topicQueryCount) => {
+          topicQueryCount.as('postCounter')
+        })
+    })
+    const filteredForums = forums.filter((f) => f.topics.length > 0)
+
+    return response.ok(filteredForums)
+  }
 }

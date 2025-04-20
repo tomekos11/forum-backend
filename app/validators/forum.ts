@@ -12,3 +12,9 @@ export const createForumValidator = vine.compile(
     description: vine.string().minLength(10).maxLength(500),
   })
 )
+
+export const searchTopicValidator = vine.compile(
+  vine.object({
+    filter: vine.string().optional(),
+  })
+)
