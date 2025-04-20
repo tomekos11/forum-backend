@@ -21,6 +21,9 @@ export default class UserData extends BaseModel {
   declare image: null | string
 
   @column.dateTime({ autoCreate: true })
+  declare lastActivity: DateTime
+
+  @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })

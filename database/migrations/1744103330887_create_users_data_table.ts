@@ -13,6 +13,8 @@ export default class extends BaseSchema {
       table.string('description').nullable()
       table.string('image').nullable()
 
+      table.datetime('last_activity').nullable()
+
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })
