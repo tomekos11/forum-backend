@@ -29,6 +29,7 @@ router.post('/login', [AuthController, 'login']).use(throttle)
 router.post('/register', [AuthController, 'register'])
 router.get('/logout', [AuthController, 'logout'])
 
+router.get('/is-api-online', () => true)
 router.get('/online', [AuthController, 'online'])
 router.get('/check-user', [AuthController, 'checkUser'])
 
@@ -49,7 +50,10 @@ router
         router.get('/name', [TopicsController, 'getName'])
         router.get('/:slug', [TopicsController, 'index']) // + Lista topiców w danym forum -> potrzeba id forum
         router.post('/follow', [TopicsController, 'follow']).use([middleware.auth()])
-        router.post('/:slug/close', [TopicsController, 'close']).use([middleware.role('moderator')])
+        router
+          .patch('/:slug/close', [TopicsController, 'close'])
+          .use([middleware.role('moderator')])
+        router.patch('/:slug/open', [TopicsController, 'open']).use([middleware.role('moderator')])
         router.post('/:forumSlug', [TopicsController, 'store']).use([middleware.auth()]) // + Dodawanie tematu -> admin/casual rozroznianie
         //Edytowanie tematu -> nazwa, description? -> admin/twórca
         //Usuwanie tematu -> admin/twórca -> co z postami?

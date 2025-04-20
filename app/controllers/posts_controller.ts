@@ -190,6 +190,7 @@ export default class PostController {
         topic,
       })
     }
+
     const post = await Post.find(postId)
     if (!post || post.topicId !== topic.id) {
       return response.badRequest({ message: 'Post nie należy do tematu' })

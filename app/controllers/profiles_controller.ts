@@ -5,7 +5,6 @@ import app from '@adonisjs/core/services/app'
 import { unlinkSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import User from '#models/user'
-import Forum from '#models/forum'
 import Topic from '#models/topic'
 
 export default class ProfilesController {
@@ -14,7 +13,7 @@ export default class ProfilesController {
       const user = await User.query()
         .where('username', request.param('username'))
         .preload('data')
-        .preload('followedTopics')
+        .preload('followedTopics', (followedTopicsQuery) => followedTopicsQuery.preload('forum'))
         .firstOrFail()
 
       const topics = await Topic.query()

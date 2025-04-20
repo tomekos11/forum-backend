@@ -16,7 +16,7 @@ export default class TopicsController {
       order = 'asc',
       filter,
     } = await indexTopicValidator.validate(
-      request.only(['page', 'perPage', 'title', 'sortBy', 'order', 'filter'])
+      request.only(['page', 'perPage', 'filter', 'sortBy', 'order'])
     )
 
     const topics = await topicsList(forumSlug, page, perPage, sortBy, order, filter)
@@ -74,6 +74,16 @@ export default class TopicsController {
 
     const topic = await Topic.findByOrFail('slug', forumSlug)
     topic.isClosed = true
+    await topic.save()
+
+    return response.ok(topic)
+  }
+
+  public async open({ request, response }: HttpContext) {
+    const forumSlug = request.param('slug')
+
+    const topic = await Topic.findByOrFail('slug', forumSlug)
+    topic.isClosed = false
     await topic.save()
 
     return response.ok(topic)
