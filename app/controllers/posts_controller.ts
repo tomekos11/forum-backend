@@ -31,10 +31,13 @@ export default class PostController {
 
     await post.load('user', (userQuery) => userQuery.preload('data'))
 
+    const serializedPost = post.serialize()
+    serializedPost.reaction = { like: 0, dislike: 0 }
+
     UserService.updatePostStatsCache(user.id) // Aktualizacja countera
     NewPost.dispatch(post) //event emit
 
-    return response.created({ message: 'Post dodany!', post })
+    return response.created({ message: 'Post dodany!', serializedPost })
   }
 
   public async index({ request, auth, response }: HttpContext) {
