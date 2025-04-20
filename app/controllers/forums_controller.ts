@@ -48,4 +48,6 @@ export default class ForumsController {
       return response.badRequest({ error: error.message })
     }
   }
+
+  public async findTopic({ request, auth, response }: HttpContext) {}
 }

@@ -60,6 +60,7 @@ router
       .group(() => {
         router.get('/', [ForumsController, 'index']) // + lista for
         router.get('/name', [ForumsController, 'getName'])
+        router.get('/findTopic', [ForumsController, 'findTopic'])
         router
           .group(() => {
             router.post('/', [ForumsController, 'store']) // + dodawanie nowych for -> admin
