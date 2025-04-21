@@ -21,6 +21,10 @@ export default class ReactionsController {
 
       const user = await auth.use('jwt').authenticate()
 
+      if (post.userId === user.id) {
+        return response.status(402).send({ message: 'Nie można dodawać reakcji na swoje posty' })
+      }
+
       const existingReaction = await Reaction.query()
         .where('user_id', user.id)
         .where('post_id', postId)
