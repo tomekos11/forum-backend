@@ -13,7 +13,9 @@ export default class ProfilesController {
       const user = await User.query()
         .where('username', request.param('username'))
         .preload('data')
-        .preload('followedTopics', (followedTopicsQuery) => followedTopicsQuery.preload('forum'))
+        .preload('followedTopics', (followedTopicsQuery) =>
+          followedTopicsQuery.preload('forum').preload('posts', (postQuery) => postQuery.limit(1))
+        )
         .firstOrFail()
 
       const topics = await Topic.query()

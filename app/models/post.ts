@@ -40,6 +40,9 @@ export default class Post extends BaseModel {
   @hasMany(() => Notification)
   declare notification: HasMany<typeof Notification>
 
+  @hasMany(() => PostHistory)
+  declare postHistories: HasMany<typeof PostHistory>
+
   @hasOne(() => Topic, {
     foreignKey: 'pinnedPostId',
   })
