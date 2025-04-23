@@ -27,6 +27,7 @@ export default class NotificationService {
         const page = Math.ceil(count / perPage)
 
         return {
+          topicName: row.topic.name,
           topicSlug: row.topic.slug,
           forumSlug: row.topic.forum.slug,
           count: Number.parseInt(row.$extras.total),
