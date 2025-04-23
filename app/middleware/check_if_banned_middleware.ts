@@ -7,7 +7,7 @@ export default class CheckIfBannedMiddleware {
     const user = auth.use('jwt').user
 
     if (user) {
-      const banResponse = await BanService.checkIfBanned(user.id)
+      const banResponse = await BanService.advancedInfoAboutBan(user.id)
 
       if (banResponse) {
         response.clearCookie('token')

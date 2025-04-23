@@ -15,7 +15,7 @@ export default class AuthController {
       await auth.use('jwt').generate(user)
 
       if (user) {
-        const banResponse = await BanService.checkIfBanned(user.id)
+        const banResponse = await BanService.advancedInfoAboutBan(user.id)
         if (banResponse) {
           response.clearCookie('token')
           return response.unauthorized(banResponse)

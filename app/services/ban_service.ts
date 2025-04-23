@@ -2,7 +2,7 @@ import Ban from '#models/ban'
 import { DateTime } from 'luxon'
 
 export default class BanService {
-  static async checkIfBanned(userId: number) {
+  static async isUserBanned(userId: number) {
     const activeBan = await Ban.query()
       .where('user_id', userId)
       .andWhere((query) => {
@@ -10,10 +10,26 @@ export default class BanService {
       })
       .first()
 
+    return activeBan
+  }
+
+  static async advancedInfoAboutBan(userId: number) {
+    const activeBan = await this.isUserBanned(userId)
+
     if (activeBan) {
-      return { status: 'banned', unlockDate: activeBan.bannedUntil, reason: activeBan.reason }
+      return { isBanned: true, ...activeBan.$attributes }
     }
 
     return null
+  }
+
+  static async simpleInfoAboutBan(userId: number) {
+    const activeBan = await this.isUserBanned(userId)
+
+    if (activeBan) {
+      return { isBanned: true, unlockDate: activeBan.bannedUntil }
+    }
+
+    return { isBanned: false, unlockDate: null }
   }
 }

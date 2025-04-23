@@ -2,12 +2,24 @@ import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
 import type { HasMany, HasOne, ManyToMany } from '@adonisjs/lucid/types/relations'
-import { afterCreate, BaseModel, column, hasMany, hasOne, manyToMany } from '@adonisjs/lucid/orm'
+import {
+  afterCreate,
+  afterFetch,
+  afterFind,
+  BaseModel,
+  column,
+  computed,
+  hasMany,
+  hasOne,
+  manyToMany,
+} from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import Post from './post.js'
 import UserData from './user_data.js'
 import Topic from './topic.js'
+import Ban from './ban.js'
+import BanService from '#services/ban_service'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['username'],
@@ -38,6 +50,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @hasMany(() => Post)
   declare posts: HasMany<typeof Post> // Relacja 1:N – użytkownik może mieć wiele postów
 
+  @hasMany(() => Ban)
+  declare bans: HasMany<typeof Ban>
+
   @hasOne(() => UserData)
   declare data: HasOne<typeof UserData>
 
@@ -58,5 +73,22 @@ export default class User extends compose(BaseModel, AuthFinder) {
     await UserData.create({
       userId: user.id,
     })
+  }
+
+  @computed()
+  public get banInfo() {
+    return this.$extras.banInfo || { isBanned: false, unlockDate: null }
+  }
+
+  @afterFetch()
+  public static async afterFetchHook(users: User[]) {
+    for (const user of users) {
+      user.$extras.banInfo = await BanService.simpleInfoAboutBan(user.id)
+    }
+  }
+
+  @afterFind()
+  public static async afterFindHook(user: User) {
+    user.$extras.banInfo = await BanService.simpleInfoAboutBan(user.id)
   }
 }
