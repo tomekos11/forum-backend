@@ -110,6 +110,7 @@ router
       .group(() => {
         router.post('/', [BansController, 'banUser'])
         router.delete('/:username', [BansController, 'unbanUser'])
+        router.patch('/:username', [BansController, 'editBan'])
         router.get('/', [BansController, 'listActiveBans'])
         router.get('/:username', [BansController, 'userBans'])
       })
