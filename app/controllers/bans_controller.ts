@@ -1,4 +1,5 @@
 import Ban from '#models/ban'
+import User from '#models/user'
 import { banUserValidator } from '#validators/ban'
 import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
@@ -68,9 +69,6 @@ export default class BansController {
     return response.ok({ message: 'Użytkownik został odbanowany' })
   }
 
-  /**
-   * Lista zbanowanych użytkowników (aktywnych banów)
-   */
   public async listActiveBans({ response }: HttpContext) {
     const activeBans = await Ban.query()
       .where((query) => {
@@ -81,14 +79,13 @@ export default class BansController {
     return response.ok(activeBans)
   }
 
-  /**
-   * Szczegóły banów konkretnego użytkownika
-   */
   public async userBans({ params, response }: HttpContext) {
-    const userId = params.id
+    const username = params.username
 
-    const bans = await Ban.query().where('user_id', userId).orderBy('created_at', 'desc')
+    const user = await User.query().where('username', username).preload('data').firstOrFail()
 
-    return response.ok(bans)
+    const bans = await Ban.query().where('user_id', user.id).orderBy('created_at', 'desc')
+
+    return response.ok({ user, bans })
   }
 }

@@ -109,10 +109,10 @@ router
 
     router
       .group(() => {
-        router.post('/ban', [BansController, 'banUser'])
-        router.delete('/ban/:username', [BansController, 'unbanUser'])
-        router.get('/bans', [BansController, 'listActiveBans'])
-        router.get('/bans/:username', [BansController, 'userBans'])
+        router.post('/', [BansController, 'banUser'])
+        router.delete('/:username', [BansController, 'unbanUser'])
+        router.get('/', [BansController, 'listActiveBans'])
+        router.get('/:username', [BansController, 'userBans'])
       })
       .prefix('bans')
       .use([middleware.role('admin')])
