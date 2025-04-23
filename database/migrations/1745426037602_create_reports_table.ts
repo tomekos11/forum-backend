@@ -10,7 +10,7 @@ export default class extends BaseSchema {
 
       table.string('reportable_type')
       table.integer('reportable_id')
-      table.text('reason') // do wyboru z listy -> osobne dla postów, tematów, forów
+      table.text('reason')
       table.enum('status', ['pending', 'in_progress', 'resolved']).defaultTo('pending')
 
       table.timestamp('created_at').defaultTo(this.now())

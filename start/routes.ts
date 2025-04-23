@@ -116,5 +116,23 @@ router
       })
       .prefix('bans')
       .use([middleware.role('admin')])
+
+    router
+      .group(() => {
+        router
+          .group(() => {
+            // router.get('/', [ReportsController, 'index'])
+            router.post('/', [ReportsController, 'store'])
+            // router.get('/:id', [ReportsController, 'show'])
+          })
+          .use([middleware.role('admin')])
+
+        // router.put('/:id', [ReportsController, 'update'])
+        // router.post('/:id/close', [ReportsController, 'close'])
+        // router.post('/:id/messages', [ReportMessagesController, 'store'])
+        // router.get('/my/reports', [ReportsController, 'myReports'])
+      })
+      .prefix('reports')
+      .use([middleware.auth()])
   })
   .use([middleware.tracker(), middleware.registerUserActivity(), middleware.checkIfBanned()])
