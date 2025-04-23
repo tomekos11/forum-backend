@@ -2,6 +2,8 @@ import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import Post from './post.js'
+import Topic from './topic.js'
 
 export default class Report extends BaseModel {
   @column({ isPrimary: true })
@@ -11,10 +13,10 @@ export default class Report extends BaseModel {
   declare reporterId: number
 
   @column()
-  declare reportableType: string
+  declare reportableType: string | null
 
   @column()
-  declare reportableId: number
+  declare reportableId: number | null
 
   @column()
   declare reason: string
@@ -32,4 +34,17 @@ export default class Report extends BaseModel {
     foreignKey: 'reporterId',
   })
   declare reporter: BelongsTo<typeof User>
+
+  public async reportable() {
+    switch (this.reportableType) {
+      case 'Post':
+        return await Post.find(this.reportableId)
+      case 'User':
+        return await User.find(this.reportableId)
+      case 'Topic':
+        return await Topic.find(this.reportableId)
+      default:
+        return null // other, no relation
+    }
+  }
 }

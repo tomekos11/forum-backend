@@ -25,6 +25,7 @@ const ProfilesController = () => import('#controllers/profiles_controller')
 const ReactionSController = () => import('#controllers/reactions_controller')
 const NotificationsController = () => import('#controllers/notifications_controller')
 const BansController = () => import('#controllers/bans_controller')
+const ReportsController = () => import('#controllers/reports_controller')
 
 router.post('/login', [AuthController, 'login']).use(throttle)
 router.post('/register', [AuthController, 'register'])
@@ -121,16 +122,15 @@ router
       .group(() => {
         router
           .group(() => {
-            // router.get('/', [ReportsController, 'index'])
+            //router.get('/', [ReportsController, 'index']) // lista zgłoszeń (admin)
             router.post('/', [ReportsController, 'store'])
-            // router.get('/:id', [ReportsController, 'show'])
+            // router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości
+            // router.patch('/:id/close', [ReportsController, 'close']) //zamkniecie zgłoszenia
           })
           .use([middleware.role('admin')])
 
-        // router.put('/:id', [ReportsController, 'update'])
-        // router.post('/:id/close', [ReportsController, 'close'])
-        // router.post('/:id/messages', [ReportMessagesController, 'store'])
-        // router.get('/my/reports', [ReportsController, 'myReports'])
+        // router.post('/:id/messages', [ReportsController, 'store']) // dodawanie wiadomości do zgłoszenia
+        // router.get('/my/reports', [ReportsController, 'myReports']) // dla usera dane jego zgłsozen
       })
       .prefix('reports')
       .use([middleware.auth()])
