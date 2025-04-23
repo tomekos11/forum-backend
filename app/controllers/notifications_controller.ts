@@ -28,7 +28,9 @@ export default class NotificationsController {
     const notificationsAll = await Notification.query()
       .where('user_id', user.id)
       .preload('post', (query) => {
-        query.select('*')
+        query.select('*').preload('user', (userQuery) => {
+          userQuery.preload('data')
+        })
       })
       .orderBy('created_at', 'desc')
       .preload('topic', (query) => {
@@ -62,21 +64,28 @@ export default class NotificationsController {
 
       const unread = notifications.filter((n) => !n.read)
       const lastPostAt = notifications.map((n) => n.post?.createdAt || n.createdAt)?.[0]
+      // notifications.forEach((element) => {
+      //   console.log(element.createdAt, element.updatedAt, element.read)
+      // })
+
+      const lastReadAt = notifications
+        .filter((n) => n.updatedAt !== null && n.read)
+        .map((n) => n.updatedAt)?.[0]
 
       if (unread.length === 0) {
-        // Wszystko przeczytane
-        const lastReadAt = notifications.map((n) => n.updatedAt)?.[0]
-
         readTopics.push({
           topic,
           lastPostAt,
-          lastReadAt,
+          lastReadAt: lastReadAt ?? null,
+          lastPost: notifications[0].post,
         })
       } else {
         unreadTopics.push({
           topic,
           unreadCount: unread.length,
           lastPostAt,
+          lastReadAt: lastReadAt ?? null,
+          lastPost: notifications[0].post,
         })
       }
     }
