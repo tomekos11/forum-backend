@@ -161,6 +161,10 @@ export default class PostController {
 
     await post.save()
 
+    await post.load('postHistories', (PostHistoriesQuery) =>
+      PostHistoriesQuery.groupLimit(1).preload('user')
+    )
+
     return response.created({ message: 'Post został zedytowany!', post })
   }
 
