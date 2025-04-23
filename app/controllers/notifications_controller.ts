@@ -1,4 +1,5 @@
 import Notification from '#models/notification'
+import Post from '#models/post'
 import Topic from '#models/topic'
 import NotificationService from '#services/notification_service'
 import { markAsReadValidator } from '#validators/notification'
@@ -24,6 +25,7 @@ export default class NotificationsController {
   }
   public async notifyAll({ auth, response }: HttpContext) {
     const user = await auth.use('jwt').user!
+    const perPage = 10
 
     const notificationsAll = await Notification.query()
       .where('user_id', user.id)
@@ -63,29 +65,39 @@ export default class NotificationsController {
       const { topic, notifications } = grouped[topicId]
 
       const unread = notifications.filter((n) => !n.read)
-      const lastPostAt = notifications.map((n) => n.post?.createdAt || n.createdAt)?.[0]
-      // notifications.forEach((element) => {
-      //   console.log(element.createdAt, element.updatedAt, element.read)
-      // })
+      const lastPost = notifications[0].post
+      const lastPostId = lastPost?.id
 
-      const lastReadAt = notifications
-        .filter((n) => n.updatedAt !== null && n.read)
-        .map((n) => n.updatedAt)?.[0]
+      let page = null
+      if (lastPostId) {
+        const postPosition = await Post.query()
+          .where('topic_id', Number(topicId))
+          .where('id', '<=', lastPostId)
+          .count('* as count')
+
+        const count = Number(postPosition[0].$extras.count)
+        page = Math.ceil(count / perPage)
+      }
+
+      const lastPostAt = lastPost?.createdAt || notifications[0].createdAt
+      const lastReadAt =
+        notifications.filter((n) => n.updatedAt !== null && n.read).map((n) => n.updatedAt)?.[0] ??
+        null
+
+      const result = {
+        topic,
+        lastPostAt,
+        lastReadAt,
+        lastPost,
+        page,
+      }
 
       if (unread.length === 0) {
-        readTopics.push({
-          topic,
-          lastPostAt,
-          lastReadAt: lastReadAt ?? null,
-          lastPost: notifications[0].post,
-        })
+        readTopics.push(result)
       } else {
         unreadTopics.push({
-          topic,
+          ...result,
           unreadCount: unread.length,
-          lastPostAt,
-          lastReadAt: lastReadAt ?? null,
-          lastPost: notifications[0].post,
         })
       }
     }
