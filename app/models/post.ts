@@ -28,6 +28,9 @@ export default class Post extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
+  //helper variables
+  public editedBy?: number
+
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
 
@@ -54,7 +57,7 @@ export default class Post extends BaseModel {
     if (!post.$dirty?.isDeleted) {
       await PostHistory.create({
         postId: post.id,
-        userId: post.userId,
+        userId: post.editedBy || post.userId,
         content: originalContent,
       })
     }

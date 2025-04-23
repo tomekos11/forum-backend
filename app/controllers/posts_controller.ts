@@ -142,6 +142,8 @@ export default class PostController {
     }
 
     post.content = content
+    post.editedBy = user.id
+
     await post.save()
 
     return response.created({ message: 'Post został zedytowany!', post })
