@@ -16,6 +16,9 @@ export default class ProfilesController {
         .preload('followedTopics', (followedTopicsQuery) =>
           followedTopicsQuery
             .preload('forum')
+            .withCount('posts', (query) => {
+              query.as('postCounter')
+            })
             .preload('posts', (postQuery) => postQuery.groupOrderBy('id', 'asc').groupLimit(1))
         )
         .firstOrFail()
