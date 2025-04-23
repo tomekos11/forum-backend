@@ -11,7 +11,13 @@ export default class Ban extends BaseModel {
   declare userId: number
 
   @column()
+  declare bannedBy: number | null
+
+  @column()
   declare reason: string
+
+  @column()
+  declare comment: string | null
 
   @column.dateTime()
   declare bannedUntil: DateTime | null
@@ -24,4 +30,7 @@ export default class Ban extends BaseModel {
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
+
+  @belongsTo(() => User, { foreignKey: 'bannedBy' })
+  declare bannedByUser: BelongsTo<typeof User>
 }

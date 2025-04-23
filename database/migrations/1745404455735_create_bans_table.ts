@@ -8,7 +8,11 @@ export default class extends BaseSchema {
       table.increments('id')
 
       table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.integer('banned_by').unsigned().references('id').inTable('users').onDelete('SET NULL')
+
       table.string('reason').notNullable()
+      table.json('comment').nullable()
+
       table.timestamp('banned_until').nullable()
 
       table.timestamp('created_at').defaultTo(this.now())

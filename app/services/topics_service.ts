@@ -26,9 +26,10 @@ export const topicsList = async (
           .groupLimit(1)
           .preload('user', (userQuery) => userQuery.preload('data'))
       })
-      .withCount('posts')
+      .withCount('posts', (query) => {
+        query.as('postCounter')
+      })
       .orderBy('created_at', 'desc')
-      .exec()
 
     const regularTopicsQuery = forum
       .related('topics')
@@ -40,7 +41,9 @@ export const topicsList = async (
           .groupLimit(1)
           .preload('user', (userQuery) => userQuery.preload('data'))
       })
-      .withCount('posts')
+      .withCount('posts', (query) => {
+        query.as('postCounter')
+      })
 
     if (filter) {
       filter = filter.replace(/[^a-zA-Z0-9 ]/g, '')
@@ -69,22 +72,22 @@ export const topicsList = async (
 
     const paginatedRegularTopics = await regularTopicsQuery.paginate(page, perPage)
 
-    const primaryTopics = pinnedTopics.map((topic) => ({
-      ...topic.serialize(),
-      postCounter: topic.$extras.posts_count,
-    }))
+    // const primaryTopics = pinnedTopics.map((topic) => ({
+    //   ...topic.serialize(),
+    //   postCounter: topic.$extras.posts_count,
+    // }))
 
-    const regularTopics = paginatedRegularTopics.serialize().data.map((topic) => ({
-      ...topic,
-      postCounter: topic.posts_count,
-    }))
+    // const regularTopics = paginatedRegularTopics.serialize().data.map((topic) => ({
+    //   ...topic,
+    //   postCounter: topic.$extras.posts_count,
+    // }))
 
     const meta = paginatedRegularTopics.serialize().meta
 
     return {
       topics: {
-        primaryTopics,
-        nonPrimaryTopics: regularTopics,
+        primaryTopics: pinnedTopics,
+        nonPrimaryTopics: paginatedRegularTopics,
       },
       meta,
     }

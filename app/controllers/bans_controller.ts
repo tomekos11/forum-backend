@@ -5,7 +5,9 @@ import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
 export default class BansController {
-  public async banUser({ request, response }: HttpContext) {
+  public async banUser({ auth, request, response }: HttpContext) {
+    const currentUser = auth.use('jwt').user!
+
     const { userId, duration, reason } = await banUserValidator.validate(
       request.only(['userId', 'duration', 'reason'])
     )
@@ -43,6 +45,7 @@ export default class BansController {
 
     const ban = await Ban.create({
       userId,
+      bannedBy: currentUser.id,
       bannedUntil: bannedUntilDate,
       reason,
     })
@@ -65,7 +68,8 @@ export default class BansController {
       return response.notFound({ message: 'Użytkownik nie jest zbanowany' })
     }
 
-    await activeBan.delete()
+    activeBan.bannedUntil = DateTime.now()
+    await activeBan.save()
 
     return response.ok({ user, message: 'Użytkownik został odbanowany' })
   }
