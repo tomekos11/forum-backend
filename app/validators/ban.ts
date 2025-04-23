@@ -11,3 +11,9 @@ export const banUserValidator = vine.compile(
     customDays: vine.number().positive().optional(),
   })
 )
+
+export const unbanValidator = vine.compile(
+  vine.object({
+    unbanReason: vine.string().trim().minLength(3).optional(),
+  })
+)

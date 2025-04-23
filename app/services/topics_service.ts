@@ -77,17 +77,17 @@ export const topicsList = async (
     //   postCounter: topic.$extras.posts_count,
     // }))
 
-    // const regularTopics = paginatedRegularTopics.serialize().data.map((topic) => ({
-    //   ...topic,
-    //   postCounter: topic.$extras.posts_count,
-    // }))
+    const regularTopics = paginatedRegularTopics.serialize().data.map((topic) => ({
+      ...topic,
+      //      postCounter: topic.$extras.posts_count,
+    }))
 
     const meta = paginatedRegularTopics.serialize().meta
 
     return {
       topics: {
         primaryTopics: pinnedTopics,
-        nonPrimaryTopics: paginatedRegularTopics,
+        nonPrimaryTopics: regularTopics,
       },
       meta,
     }
