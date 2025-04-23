@@ -71,7 +71,9 @@ export default class PostController {
       .preload('user', (userQuery) => {
         userQuery.preload('data')
       })
-      .preload('postHistories', (PostHistoriesQuery) => PostHistoriesQuery.limit(1).preload('user'))
+      .preload('postHistories', (PostHistoriesQuery) =>
+        PostHistoriesQuery.groupLimit(1).preload('user')
+      )
       .preload('reaction')
     if (sortBy === 'reaction_count') {
       query

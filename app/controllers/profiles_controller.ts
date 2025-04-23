@@ -14,7 +14,9 @@ export default class ProfilesController {
         .where('username', request.param('username'))
         .preload('data')
         .preload('followedTopics', (followedTopicsQuery) =>
-          followedTopicsQuery.preload('forum').preload('posts', (postQuery) => postQuery.limit(1))
+          followedTopicsQuery
+            .preload('forum')
+            .preload('posts', (postQuery) => postQuery.groupOrderBy('id', 'asc').groupLimit(1))
         )
         .firstOrFail()
 
