@@ -66,13 +66,14 @@ export default class NotificationsController {
 
       const unread = notifications.filter((n) => !n.read)
       const lastPost = notifications[0].post
-      const lastPostId = lastPost?.id
+
+      const lastUnreadId = unread[unread.length - 1]?.postId
 
       let page = null
-      if (lastPostId) {
+      if (lastUnreadId) {
         const postPosition = await Post.query()
           .where('topic_id', Number(topicId))
-          .where('id', '<=', lastPostId)
+          .where('id', '<=', lastUnreadId)
           .count('* as count')
 
         const count = Number(postPosition[0].$extras.count)
