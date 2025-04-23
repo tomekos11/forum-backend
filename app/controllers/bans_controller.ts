@@ -1,6 +1,6 @@
 import Ban from '#models/ban'
 import User from '#models/user'
-import { banUserValidator } from '#validators/ban'
+import { banUserValidator, unbanValidator } from '#validators/ban'
 import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
@@ -53,9 +53,10 @@ export default class BansController {
     return response.ok({ ban })
   }
 
-  public async unbanUser({ params, response }: HttpContext) {
+  public async unbanUser({ request, params, response }: HttpContext) {
     const username = params.username
     const user = await User.query().where('username', username).preload('data').firstOrFail()
+    const { unbanReason } = await unbanValidator.validate(request.only(['unbanReason']))
 
     const activeBan = await Ban.query()
       .where('user_id', user.id)
@@ -68,7 +69,14 @@ export default class BansController {
       return response.notFound({ message: 'Użytkownik nie jest zbanowany' })
     }
 
+    const unbanComment = {
+      unbanUser: user.id,
+      unbanDate: DateTime.now(),
+      unbanReason: unbanReason,
+      scheduledEnd: activeBan.bannedUntil,
+    }
     activeBan.bannedUntil = DateTime.now()
+    activeBan.comment = unbanComment
     await activeBan.save()
 
     return response.ok({ user, message: 'Użytkownik został odbanowany' })
@@ -89,8 +97,28 @@ export default class BansController {
 
     const user = await User.query().where('username', username).preload('data').firstOrFail()
 
-    const bans = await Ban.query().where('user_id', user.id).orderBy('created_at', 'desc')
+    const bans = await Ban.query()
+      .where('user_id', user.id)
+      .preload('bannedByUser')
+      .orderBy('created_at', 'desc')
 
-    return response.ok({ user, bans })
+    const enrichedBans = await Promise.all(
+      bans.map(async (ban) => {
+        const unbanUserId = (ban.comment as Record<string, any>)?.unbanUser
+        console.log(unbanUserId)
+        let unbanUser = null
+
+        if (unbanUserId) {
+          unbanUser = await User.query().where('id', unbanUserId).first()
+        }
+
+        return {
+          ...ban.serialize(),
+          unbanUser,
+        }
+      })
+    )
+
+    return response.ok({ user, bans: enrichedBans })
   }
 }

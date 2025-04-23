@@ -16,8 +16,15 @@ export default class Ban extends BaseModel {
   @column()
   declare reason: string
 
-  @column()
-  declare comment: string | null
+  @column({
+    prepare: (value: object | null) => {
+      return JSON.stringify(value)
+    },
+    consume: (value: string | null) => {
+      return value ? JSON.parse(value) : value
+    },
+  })
+  declare comment: object | null
 
   @column.dateTime()
   declare bannedUntil: DateTime | null
