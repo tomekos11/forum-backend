@@ -37,7 +37,7 @@ export default class PostController {
     UserService.updatePostStatsCache(user.id) // Aktualizacja countera
     NewPost.dispatch(post) //event emit
 
-    return response.created({ message: 'Post dodany!', serializedPost })
+    return response.created({ message: 'Post dodany!', post: serializedPost })
   }
 
   public async index({ request, auth, response }: HttpContext) {

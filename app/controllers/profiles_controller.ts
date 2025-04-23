@@ -60,6 +60,7 @@ export default class ProfilesController {
       return response.status(422).send(error.messages)
     }
   }
+
   public async edit({ request, auth, response }: HttpContext) {
     try {
       const currentUser = await auth.use('jwt').authenticate()
