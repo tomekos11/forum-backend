@@ -3,9 +3,8 @@ import { createUserValidator } from '#validators/user'
 
 import User from '#models/user'
 import redis from '@adonisjs/redis/services/main'
-import Notification from '#models/notification'
-import Post from '#models/post'
 import NotificationService from '#services/notification_service'
+import BanService from '#services/ban_service'
 
 export default class AuthController {
   public async login({ request, auth, response }: HttpContext) {
@@ -15,6 +14,13 @@ export default class AuthController {
       const user = await User.verifyCredentials(username, password)
       await auth.use('jwt').generate(user)
 
+      if (user) {
+        const banResponse = await BanService.checkIfBanned(user.id)
+        if (banResponse) {
+          response.clearCookie('token')
+          return response.unauthorized(banResponse)
+        }
+      }
       await user.load('data')
 
       const unread = await NotificationService.getUnreadGroupedByTopic(user.id)

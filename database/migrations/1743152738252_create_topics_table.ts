@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table.string('slug').unique()
 
       table.integer('forum_id').unsigned().nullable().references('forums.id').onDelete('CASCADE')
-      table.integer('user_id').unsigned().nullable().references('users.id').onDelete('CASCADE')
+      table.integer('user_id').unsigned().nullable().references('users.id').onDelete('SET NULL')
 
       table.boolean('is_primary').defaultTo(false)
       table.boolean('is_closed').defaultTo(false)

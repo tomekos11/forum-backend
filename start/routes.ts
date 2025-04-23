@@ -106,4 +106,4 @@ router
       })
       .prefix('notification')
   })
-  .use([middleware.tracker(), middleware.registerUserActivity()])
+  .use([middleware.tracker(), middleware.registerUserActivity(), middleware.checkIfBanned()])
