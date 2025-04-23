@@ -123,13 +123,13 @@ router
         router
           .group(() => {
             //router.get('/', [ReportsController, 'index']) // lista zgłoszeń (admin)
-            router.post('/', [ReportsController, 'store'])
             // router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości
             // router.patch('/:id/close', [ReportsController, 'close']) //zamkniecie zgłoszenia
           })
           .use([middleware.role('admin')])
 
-        // router.post('/:id/messages', [ReportsController, 'store']) // dodawanie wiadomości do zgłoszenia
+        router.post('/', [ReportsController, 'store'])
+        router.post('/:id', [ReportsController, 'addMessage']) // dodawanie wiadomości do zgłoszenia
         // router.get('/my/reports', [ReportsController, 'myReports']) // dla usera dane jego zgłsozen
       })
       .prefix('reports')

@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Report from '#models/report'
-import { existsForType, storeReportValidator } from '#validators/report'
+import { addMessageValidator, existsForType, storeReportValidator } from '#validators/report'
 import ReportMessage from '#models/report_message'
 
 export default class ReportsController {
@@ -36,6 +36,54 @@ export default class ReportsController {
 
     return response.created({
       report,
+      reportMessage,
+    })
+  }
+
+  public async addMessage({ request, auth, response, params }: HttpContext) {
+    //TODO czy administrator/moderator moze odpowiadac na swoje zgłoszenie?
+    const user = auth.use('jwt').user!
+    const report = await Report.findOrFail(params.id)
+
+    if (report.reporterId !== user.id && user.role !== 'admin' && user.role !== 'moderator') {
+      return response.badRequest({
+        message: 'Tylko zgłaszający użytkownik lub admin/moderator może odpowiedzieć.',
+      })
+    }
+
+    if (user.role === 'admin' || user.role === 'moderator') {
+      if (report.status === 'pending') {
+        report.status = 'in_progress'
+      } else if (report.status === 'resolved') {
+        return response.badRequest({
+          message: 'Nie możesz odpowiedzieć na zgłoszenie, które zostało już rozwiązane.',
+        })
+      }
+    } else if (user.id === report.reporterId) {
+      if (report.status !== 'in_progress') {
+        return response.badRequest({
+          message: 'Zaczekaj na odpowiedź moderatora lub admina.',
+        })
+      }
+    } else {
+      return response.badRequest({
+        message:
+          'Tylko admin, moderator lub użytkownik zgłaszający mogą odpowiedzieć na to zgłoszenie.',
+      })
+    }
+
+    const { message } = await addMessageValidator.validate(request.only(['message']))
+
+    const reportMessage = await ReportMessage.create({
+      reportId: report.id,
+      userId: user.id,
+      message: message,
+      fromModerator: user.role === 'admin' || user.role === 'moderator',
+    })
+    await report.save()
+
+    return response.created({
+      message: 'Odpowiedź została dodana.',
       reportMessage,
     })
   }

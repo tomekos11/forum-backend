@@ -12,6 +12,12 @@ export const storeReportValidator = vine.compile(
   })
 )
 
+export const addMessageValidator = vine.compile(
+  vine.object({
+    message: vine.string().minLength(5),
+  })
+)
+
 export const existsForType = async (
   reportableType: string,
   reportableId: number
