@@ -8,12 +8,21 @@ export const banUserValidator = vine.compile(
       .string()
       .trim()
       .regex(/^(forever|\d+d|\d+m|\d+y)$/),
-    customDays: vine.number().positive().optional(),
   })
 )
 
 export const unbanValidator = vine.compile(
   vine.object({
-    unbanReason: vine.string().trim().minLength(3).optional(),
+    comment: vine.string().trim().minLength(3).optional(),
+  })
+)
+
+export const editBanUserValidator = vine.compile(
+  vine.object({
+    comment: vine.string().trim().minLength(3).optional(),
+    duration: vine
+      .string()
+      .trim()
+      .regex(/^(forever|\d+d|\d+m|\d+y)$/),
   })
 )

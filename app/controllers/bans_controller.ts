@@ -1,6 +1,6 @@
 import Ban from '#models/ban'
 import User from '#models/user'
-import { banUserValidator, unbanValidator } from '#validators/ban'
+import { banUserValidator, editBanUserValidator, unbanValidator } from '#validators/ban'
 import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
@@ -56,7 +56,7 @@ export default class BansController {
   public async unbanUser({ request, params, response }: HttpContext) {
     const username = params.username
     const user = await User.query().where('username', username).preload('data').firstOrFail()
-    const { unbanReason } = await unbanValidator.validate(request.only(['unbanReason']))
+    const { comment } = await unbanValidator.validate(request.only(['comment']))
 
     const activeBan = await Ban.query()
       .where('user_id', user.id)
@@ -72,7 +72,7 @@ export default class BansController {
     const unbanComment = {
       unbanUser: user.id,
       unbanDate: DateTime.now(),
-      unbanReason: unbanReason,
+      comment: comment,
       scheduledEnd: activeBan.bannedUntil,
     }
     activeBan.bannedUntil = DateTime.now()
@@ -114,11 +114,72 @@ export default class BansController {
 
         return {
           ...ban.serialize(),
-          unbanUser,
+          unBannedByUser: unbanUser,
         }
       })
     )
 
     return response.ok({ user, bans: enrichedBans })
+  }
+
+  public async editBan({ auth, request, params, response }: HttpContext) {
+    const currentUser = auth.use('jwt').user!
+    const username = params.username
+    const user = await User.query().where('username', username).preload('data').firstOrFail()
+    const { comment, duration } = await editBanUserValidator.validate(
+      request.only(['comment', 'duration'])
+    )
+
+    const activeBan = await Ban.query()
+      .where('user_id', user.id)
+      .andWhere((query) => {
+        query.whereNull('banned_until').orWhere('banned_until', '>', DateTime.now().toSQL())
+      })
+      .first()
+
+    if (!activeBan) {
+      return response.notFound({ message: 'Użytkownik nie jest zbanowany' })
+    }
+
+    const unbanComment = {
+      unbanUser: user.id,
+      unbanDate: DateTime.now(),
+      comment: comment,
+      scheduledEnd: activeBan.bannedUntil,
+    }
+
+    activeBan.bannedUntil = DateTime.now()
+    activeBan.comment = unbanComment
+    await activeBan.save()
+
+    let bannedUntilDate: DateTime | null = null
+
+    if (duration === 'forever') {
+      bannedUntilDate = null
+    } else {
+      const match = duration.match(/^(\d+)([dmy])$/)
+      if (!match) {
+        return response.badRequest({
+          message: 'Niepoprawna wartość pola duration (np. 7d, 1m, 2y)',
+        })
+      }
+
+      const amount = Number.parseInt(match[1], 10)
+      const unit = match[2] as 'd' | 'm' | 'y'
+
+      const now = DateTime.now()
+      if (unit === 'd') bannedUntilDate = now.plus({ days: amount })
+      else if (unit === 'm') bannedUntilDate = now.plus({ months: amount })
+      else if (unit === 'y') bannedUntilDate = now.plus({ years: amount })
+    }
+
+    const ban = await Ban.create({
+      userId: activeBan.userId,
+      bannedBy: currentUser.id,
+      bannedUntil: bannedUntilDate,
+      reason: activeBan.reason,
+    })
+
+    return response.ok({ ban })
   }
 }

@@ -23,7 +23,7 @@ export default class extends BaseSeeder {
       {
         postId: post1.id,
         content: 'przed edycja2',
-        userId: user1.id,
+        userId: user2.id,
       },
       {
         postId: post2.id,
