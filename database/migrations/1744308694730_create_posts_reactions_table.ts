@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table.integer('post_id').unsigned().references('id').inTable('posts').onDelete('CASCADE')
 
       table.enum('reaction_type', ['like', 'dislike']).notNullable()
-      table.timestamp('created_at').notNullable()
+      table.timestamp('created_at').defaultTo(this.now())
       table.timestamp('updated_at').nullable()
     })
   }

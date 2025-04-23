@@ -13,7 +13,7 @@ export default class extends BaseSchema {
 
       table.boolean('is_deleted').defaultTo(false)
 
-      table.timestamp('created_at').notNullable()
+      table.timestamp('created_at').defaultTo(this.now())
       table.timestamp('updated_at').nullable()
     })
   }

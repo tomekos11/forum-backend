@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table.integer('topic_id').unsigned().references('topics.id').onDelete('CASCADE')
 
       table.unique(['user_id', 'topic_id'])
-      table.timestamp('created_at').notNullable()
+      table.timestamp('created_at').defaultTo(this.now())
       table.timestamp('updated_at').nullable()
     })
   }

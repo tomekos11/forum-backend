@@ -15,7 +15,7 @@ export default class extends BaseSchema {
 
       table.integer('deleted_by').unsigned().nullable().references('users.id').onDelete('SET NULL')
 
-      table.timestamp('created_at').notNullable()
+      table.timestamp('created_at').defaultTo(this.now())
       table.timestamp('updated_at').nullable()
     })
   }

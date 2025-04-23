@@ -15,7 +15,7 @@ export default class extends BaseSchema {
 
       table.datetime('last_activity').nullable()
 
-      table.timestamp('created_at').notNullable()
+      table.timestamp('created_at').defaultTo(this.now())
       table.timestamp('updated_at').nullable()
     })
   }

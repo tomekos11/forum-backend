@@ -14,6 +14,7 @@ const dbConfig = defineConfig({
         password: env.get('DB_PASSWORD'),
         database: env.get('DB_DATABASE'),
       },
+      //debug: true, // Enable debug mode to see SQL queries in the console
       migrations: {
         naturalSort: true,
         paths: ['database/migrations'],
