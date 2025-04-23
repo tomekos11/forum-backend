@@ -99,7 +99,6 @@ router
           .use([middleware.auth()])
       })
       .prefix('reaction')
-
     router
       .group(() => {
         router.patch('/', [NotificationsController, 'markAsRead']).use([middleware.auth()])

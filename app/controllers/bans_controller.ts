@@ -51,10 +51,11 @@ export default class BansController {
   }
 
   public async unbanUser({ params, response }: HttpContext) {
-    const userId = params.id
+    const username = params.username
+    const user = await User.query().where('username', username).preload('data').firstOrFail()
 
     const activeBan = await Ban.query()
-      .where('user_id', userId)
+      .where('user_id', user.id)
       .andWhere((query) => {
         query.whereNull('banned_until').orWhere('banned_until', '>', DateTime.now().toSQL())
       })
@@ -66,7 +67,7 @@ export default class BansController {
 
     await activeBan.delete()
 
-    return response.ok({ message: 'Użytkownik został odbanowany' })
+    return response.ok({ user, message: 'Użytkownik został odbanowany' })
   }
 
   public async listActiveBans({ response }: HttpContext) {
