@@ -24,6 +24,7 @@ const ForumsController = () => import('#controllers/forums_controller')
 const ProfilesController = () => import('#controllers/profiles_controller')
 const ReactionSController = () => import('#controllers/reactions_controller')
 const NotificationsController = () => import('#controllers/notifications_controller')
+const BansController = () => import('#controllers/bans_controller')
 
 router.post('/login', [AuthController, 'login']).use(throttle)
 router.post('/register', [AuthController, 'register'])
@@ -98,12 +99,21 @@ router
           .use([middleware.auth()])
       })
       .prefix('reaction')
-
     router
       .group(() => {
         router.patch('/', [NotificationsController, 'markAsRead']).use([middleware.auth()])
         router.get('/', [NotificationsController, 'notifyAll']).use([middleware.auth()])
       })
       .prefix('notification')
+
+    router
+      .group(() => {
+        router.post('/', [BansController, 'banUser'])
+        router.delete('/:username', [BansController, 'unbanUser'])
+        router.get('/', [BansController, 'listActiveBans'])
+        router.get('/:username', [BansController, 'userBans'])
+      })
+      .prefix('bans')
+      .use([middleware.role('admin')])
   })
-  .use([middleware.tracker(), middleware.registerUserActivity()])
+  .use([middleware.tracker(), middleware.registerUserActivity(), middleware.checkIfBanned()])
