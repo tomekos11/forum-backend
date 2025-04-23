@@ -65,6 +65,14 @@ export default class PostController {
       })
       .firstOrFail()
 
+    const firstPost = await topic
+      .related('posts')
+      .query()
+      .orderBy('created_at', 'asc')
+      .preload('user', (userQuery) => userQuery.preload('data'))
+      .preload('reaction')
+      .first()
+
     const query = topic
       .related('posts')
       .query()
@@ -123,10 +131,17 @@ export default class PostController {
       serializedTopic.pinnedPost = pinnedPost
     }
 
+    let firstPostSerialized = null
+    if (firstPost) {
+      firstPostSerialized = firstPost.serialize()
+      firstPostSerialized = ReactionService.summarizeReactions([firstPostSerialized], currentUser)
+    }
+
     return response.ok({
       meta: meta,
       data,
       topic: serializedTopic,
+      firstPost: firstPostSerialized,
     })
   }
 
