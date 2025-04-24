@@ -156,6 +156,10 @@ export default class PostController {
       return response.forbidden({ error: 'Brak uprawnień' })
     }
 
+    if (post.isDeleted) {
+      return response.forbidden({ error: 'Nie można usunąć usuniętego postu.' })
+    }
+
     post.content = content
     post.editedBy = user.id
 
@@ -195,7 +199,7 @@ export default class PostController {
 
     const p = await post.deleteWithHistory(user.id)
 
-    await post.load('postHistories', (PostHistoriesQuery) =>
+    await p.load('postHistories', (PostHistoriesQuery) =>
       PostHistoriesQuery.groupLimit(1).preload('editor')
     )
 
