@@ -122,7 +122,7 @@ router
       .group(() => {
         router
           .group(() => {
-            //router.get('/', [ReportsController, 'index']) // lista zgłoszeń (admin)
+            router.get('/', [ReportsController, 'index']) // lista zgłoszeń (admin)
             // router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości
             // router.patch('/:id/close', [ReportsController, 'close']) //zamkniecie zgłoszenia
           })

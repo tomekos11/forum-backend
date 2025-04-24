@@ -1,9 +1,41 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Report from '#models/report'
-import { addMessageValidator, existsForType, storeReportValidator } from '#validators/report'
+import {
+  addMessageValidator,
+  existsForType,
+  indexReportValidator,
+  storeReportValidator,
+} from '#validators/report'
 import ReportMessage from '#models/report_message'
 
 export default class ReportsController {
+  public async index({ request, response }: HttpContext) {
+    const {
+      status = 'pending',
+      type,
+      page = 1,
+      perPage = 10,
+    } = await indexReportValidator.validate(request.only(['status', 'type', 'page', 'perPage']))
+
+    const reportsQuery = Report.query()
+      .preload('reporter')
+      .preload('messages', (query) => {
+        query.orderBy('created_at', 'desc').groupLimit(1)
+      })
+      .orderBy('created_at', 'desc')
+
+    if (status && status !== 'all') {
+      reportsQuery.where('status', status)
+    }
+
+    if (type) {
+      reportsQuery.where('reportable_type', type)
+    }
+
+    const paginated = await reportsQuery.paginate(page, perPage)
+    return response.ok(paginated)
+  }
+
   public async store({ request, auth, response }: HttpContext) {
     const user = auth.use('jwt').user!
 

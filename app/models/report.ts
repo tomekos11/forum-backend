@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import User from './user.js'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Post from './post.js'
 import Topic from './topic.js'
+import ReportMessage from './report_message.js'
 
 export default class Report extends BaseModel {
   @column({ isPrimary: true })
@@ -34,6 +35,9 @@ export default class Report extends BaseModel {
     foreignKey: 'reporterId',
   })
   declare reporter: BelongsTo<typeof User>
+
+  @hasMany(() => ReportMessage)
+  declare messages: HasMany<typeof ReportMessage>
 
   public async reportable() {
     switch (this.reportableType) {

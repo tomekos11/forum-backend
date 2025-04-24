@@ -3,6 +3,15 @@ import Topic from '#models/topic'
 import User from '#models/user'
 import vine from '@vinejs/vine'
 
+export const indexReportValidator = vine.compile(
+  vine.object({
+    status: vine.enum(['pending', 'in_progress', 'resolved', 'all']).optional(),
+    type: vine.enum(['User', 'Post', 'Topic', 'Other']).optional(),
+    page: vine.number().positive().optional(),
+    perPage: vine.number().positive().max(100).optional(),
+  })
+)
+
 export const storeReportValidator = vine.compile(
   vine.object({
     reportableType: vine.enum(['Post', 'User', 'Topic', 'Other']).nullable().optional(),
