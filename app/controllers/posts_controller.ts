@@ -156,6 +156,10 @@ export default class PostController {
       return response.forbidden({ error: 'Brak uprawnień' })
     }
 
+    if (post.isDeleted) {
+      return response.forbidden({ error: 'Nie można usunąć usuniętego postu.' })
+    }
+
     post.content = content
     post.editedBy = user.id
 

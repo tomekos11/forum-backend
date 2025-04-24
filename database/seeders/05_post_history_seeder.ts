@@ -5,34 +5,52 @@ import PostHistory from '#models/post_history'
 
 export default class extends BaseSeeder {
   async run() {
-    // Write your database queries inside the run method
-    const admin = await User.find(1)
-    const user1 = await User.find(2)
-    const user2 = await User.find(3)
+    const adminUser = await User.find(1)
+    const regularUser1 = await User.find(2)
+    const regularUser2 = await User.find(3)
 
     const post1 = await Post.find(1)
-    const post2 = await Post.find(2)
+    const post2 = await Post.find(16)
 
-    if (!admin || !user1 || !user2 || !post1 || !post2) return
+    if (!adminUser || !regularUser1 || !regularUser2 || !post1 || !post2) return
+
     const postHistories = [
       {
         postId: post1.id,
-        content: 'przed edycja',
-        editorId: user1.id,
+        content: 'Initial content before edit',
+        editorId: regularUser1.id,
       },
       {
         postId: post1.id,
-        content: 'przed edycja2',
-        editorId: user2.id,
+        content: 'Second edit of post1 content',
+        editorId: regularUser2.id,
       },
       {
         postId: post2.id,
-        content: 'Przed usunieciem',
-        editorId: user2.id,
+        content: 'Initial content before deletion',
+        editorId: regularUser1.id,
         isDeleted: true,
       },
     ]
 
     await PostHistory.createMany(postHistories)
+
+    post2.isDeleted = true
+    await post2.save()
+
+    const additionalHistories = [
+      {
+        postId: post1.id,
+        content: 'Third edit of post1 content',
+        editorId: adminUser.id,
+      },
+      {
+        postId: post1.id,
+        content: 'Final edit of post1 before closing the thread',
+        editorId: regularUser1.id,
+      },
+    ]
+
+    await PostHistory.createMany(additionalHistories)
   }
 }
