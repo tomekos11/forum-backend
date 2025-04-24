@@ -162,7 +162,7 @@ export default class PostController {
     await post.save()
 
     await post.load('postHistories', (PostHistoriesQuery) =>
-      PostHistoriesQuery.groupLimit(1).preload('user')
+      PostHistoriesQuery.groupLimit(1).preload('editor')
     )
 
     return response.created({ message: 'Post został zedytowany!', post })
@@ -193,8 +193,13 @@ export default class PostController {
       return response.forbidden({ error: 'Post został już usunięty' })
     }
 
-    await post.deleteWithHistory(user.id)
-    return response.ok({ message: 'Post został usunięty', post })
+    const p = await post.deleteWithHistory(user.id)
+
+    await post.load('postHistories', (PostHistoriesQuery) =>
+      PostHistoriesQuery.groupLimit(1).preload('editor')
+    )
+
+    return response.ok({ message: 'Post został usunięty', post: p })
   }
 
   public async pinPost({ request, response, auth }: HttpContext) {

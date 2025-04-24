@@ -80,5 +80,7 @@ export default class Post extends BaseModel {
     this.content = '[Post został usunięty]'
     this.isDeleted = true
     await this.save()
+
+    return this
   }
 }
