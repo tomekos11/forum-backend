@@ -30,6 +30,6 @@ export default class PostHistory extends BaseModel {
   @belongsTo(() => Post)
   declare post: BelongsTo<typeof Post>
 
-  @belongsTo(() => User)
+  @belongsTo(() => User, { foreignKey: 'editorId' })
   declare editor: BelongsTo<typeof User>
 }

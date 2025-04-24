@@ -194,7 +194,7 @@ export default class PostController {
     }
 
     await post.deleteWithHistory(user.id)
-    return response.ok({ message: 'Post został usunięty' })
+    return response.ok({ message: 'Post został usunięty', post })
   }
 
   public async pinPost({ request, response, auth }: HttpContext) {
