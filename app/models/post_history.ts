@@ -12,13 +12,13 @@ export default class PostHistory extends BaseModel {
   declare postId: number
 
   @column()
-  declare userId: number | null
+  declare editorId: number | null
 
   @column()
   declare content: string
 
-  @column()
-  declare deletedBy: number | null
+  @column({ serialize: Boolean })
+  declare isDeleted: boolean
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -31,10 +31,5 @@ export default class PostHistory extends BaseModel {
   declare post: BelongsTo<typeof Post>
 
   @belongsTo(() => User)
-  declare user: BelongsTo<typeof User>
-
-  @belongsTo(() => User, {
-    foreignKey: 'deletedBy',
-  })
-  declare deletedByUser: BelongsTo<typeof User>
+  declare editor: BelongsTo<typeof User>
 }

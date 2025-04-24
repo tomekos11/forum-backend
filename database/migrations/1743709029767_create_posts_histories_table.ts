@@ -9,11 +9,11 @@ export default class extends BaseSchema {
 
       table.integer('post_id').unsigned().references('posts.id').onDelete('CASCADE')
 
-      table.integer('user_id').unsigned().nullable().references('users.id').onDelete('SET NULL')
+      table.integer('editor_id').unsigned().nullable().references('users.id').onDelete('SET NULL')
 
       table.text('content').notNullable()
 
-      table.integer('deleted_by').unsigned().nullable().references('users.id').onDelete('SET NULL')
+      table.integer('is_deleted').defaultTo(0)
 
       table.timestamp('created_at').defaultTo(this.now())
       table.timestamp('updated_at').nullable()

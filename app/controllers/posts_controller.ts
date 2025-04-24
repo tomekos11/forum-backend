@@ -80,7 +80,7 @@ export default class PostController {
         userQuery.preload('data')
       })
       .preload('postHistories', (PostHistoriesQuery) =>
-        PostHistoriesQuery.groupLimit(1).preload('user')
+        PostHistoriesQuery.groupLimit(1).preload('editor')
       )
       .preload('reaction')
     if (sortBy === 'reaction_count') {
