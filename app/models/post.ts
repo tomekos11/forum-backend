@@ -63,12 +63,12 @@ export default class Post extends BaseModel {
     }
   }
 
-  public async deleteWithHistory(deletedByUserId: number) {
+  public async deleteWithHistory(editorId: number) {
     await PostHistory.create({
       postId: this.id,
-      editorId: this.userId,
+      editorId: editorId,
       content: this.content,
-      isDeleted: !!deletedByUserId,
+      isDeleted: !!editorId,
     })
 
     const pinnedTopic = await Topic.query().where('pinnedPostId', this.id).first()

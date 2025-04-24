@@ -175,7 +175,7 @@ export default class PostController {
 
     const post = await Post.query()
       .where('id', postId)
-      .preload('user')
+      .preload('user', (userQuery) => userQuery.preload('data'))
       .preload('topic', (topicQuery) => {
         topicQuery.preload('posts', (postsQuery) => {
           postsQuery.orderBy('created_at', 'asc').limit(1)
@@ -195,7 +195,7 @@ export default class PostController {
 
     const p = await post.deleteWithHistory(user.id)
 
-    await post.load('postHistories', (PostHistoriesQuery) =>
+    await p.load('postHistories', (PostHistoriesQuery) =>
       PostHistoriesQuery.groupLimit(1).preload('editor')
     )
 
