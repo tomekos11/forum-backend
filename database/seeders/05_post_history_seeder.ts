@@ -18,18 +18,18 @@ export default class extends BaseSeeder {
       {
         postId: post1.id,
         content: 'przed edycja',
-        userId: user1.id,
+        editorId: user1.id,
       },
       {
         postId: post1.id,
         content: 'przed edycja2',
-        userId: user2.id,
+        editorId: user2.id,
       },
       {
         postId: post2.id,
         content: 'Przed usunieciem',
-        userId: user2.id,
-        deletedBy: admin.id,
+        editorId: user2.id,
+        isDeleted: true,
       },
     ]
 
