@@ -42,13 +42,18 @@ export default class Report extends BaseModel {
   public async reportable() {
     switch (this.reportableType) {
       case 'Post':
-        return await Post.find(this.reportableId)
+        return await Post.query().where('id', this.reportableId!).preload('postHistories').first()
       case 'User':
-        return await User.find(this.reportableId)
+        return await User.query().where('id', this.reportableId!).preload('data').first()
       case 'Topic':
-        return await Topic.find(this.reportableId)
+        return await Topic.query()
+          .where('id', this.reportableId!)
+          .preload('posts', (postsQuery) => {
+            postsQuery.limit(1)
+          })
+          .first()
       default:
-        return null // other, no relation
+        return null // other, brak danych
     }
   }
 }

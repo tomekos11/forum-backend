@@ -119,4 +119,32 @@ export default class ReportsController {
       reportMessage,
     })
   }
+  public async show({ params, response, auth }: HttpContext) {
+    const user = auth.use('jwt').user!
+
+    const report = await Report.query()
+      .where('id', params.id)
+      .preload('reporter')
+      .preload('messages', (query) => {
+        query.orderBy('created_at', 'asc').preload('user')
+      })
+      .firstOrFail()
+
+    const isAdmin = user.role === 'admin' || user.role === 'moderator'
+    const isReporter = report.reporterId === user.id
+
+    if (!isAdmin && !isReporter) {
+      return response.forbidden({
+        message: 'Nie masz dostępu do tego zgłoszenia.',
+      })
+    }
+
+    const reportable = await report.reportable()
+    console.log(reportable)
+
+    return response.ok({
+      ...report.serialize(),
+      reportable,
+    })
+  }
 }
