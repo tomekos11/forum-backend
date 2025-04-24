@@ -124,10 +124,10 @@ router
         router.get('/', [ReportsController, 'index']).use([middleware.role('admin')]) // lista zgłoszeń (admin)
 
         router.patch('/:id/status', [ReportsController, 'updateStatus']) //zamkniecie zgłoszenia
+        router.get('/my', [ReportsController, 'myReports']) // dla usera dane jego zgłsozen
         router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości
         router.post('/', [ReportsController, 'store'])
         router.post('/:id', [ReportsController, 'addMessage']) // dodawanie wiadomości do zgłoszenia
-        // router.get('/my/reports', [ReportsController, 'myReports']) // dla usera dane jego zgłsozen
       })
       .prefix('reports')
       .use([middleware.auth()])

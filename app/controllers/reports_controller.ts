@@ -194,4 +194,32 @@ export default class ReportsController {
       report,
     })
   }
+  public async myReports({ auth, request, response }: HttpContext) {
+    const user = auth.use('jwt').user!
+    const {
+      status = 'all',
+      type,
+      page = 1,
+      perPage = 10,
+    } = await indexReportValidator.validate(request.only(['status', 'type', 'page', 'perPage']))
+
+    const query = Report.query()
+      .where('reporter_id', user.id)
+      .orderBy('created_at', 'desc')
+      .preload('messages', (messageQuery) => {
+        messageQuery.groupOrderBy('created_at', 'asc').groupLimit(1)
+      })
+
+    if (status && status !== 'all') {
+      query.where('status', status)
+    }
+
+    if (type) {
+      query.where('reportable_type', type)
+    }
+
+    const paginatedReports = await query.paginate(page, perPage)
+
+    return response.ok(paginatedReports)
+  }
 }
