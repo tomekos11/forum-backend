@@ -21,7 +21,7 @@ export default class extends BaseSeeder {
       {
         userId: user1.id,
         topicId: 1,
-        content: 'To jest post stworzony przez użytkownika 1.',
+        content: '[Post został usunięty].',
       },
       {
         userId: user1.id,
