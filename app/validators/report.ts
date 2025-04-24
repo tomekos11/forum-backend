@@ -2,6 +2,9 @@ import Post from '#models/post'
 import Topic from '#models/topic'
 import User from '#models/user'
 import vine from '@vinejs/vine'
+import type { FieldContext } from '@vinejs/vine/types' // Opcjonalnie, dla lepszego typowania w callbacku
+
+import { getValidReasons } from '../constants/report_reasons.js'
 
 export const indexReportValidator = vine.compile(
   vine.object({
@@ -22,7 +25,23 @@ export const storeReportValidator = vine.compile(
   vine.object({
     reportableType: vine.enum(['Post', 'User', 'Topic', 'Other']).nullable().optional(),
     reportableId: vine.number().nullable().optional(),
-    reason: vine.string().minLength(5),
+    reason: vine.string().use(
+      vine.createRule((value: unknown, _: unknown, field: FieldContext) => {
+        if (typeof value !== 'string') {
+          return
+        }
+
+        const validReasons = getValidReasons(field.parent.reportableType)
+
+        if (!validReasons.includes(value)) {
+          field.report(
+            `The field "${field.name}" must contain one of the allowed reasons: ${validReasons.join(', ')}`,
+            'invalidReason',
+            field
+          )
+        }
+      })()
+    ),
     message: vine.string().minLength(5),
   })
 )
