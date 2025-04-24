@@ -12,6 +12,12 @@ export const indexReportValidator = vine.compile(
   })
 )
 
+export const updateReportStatusValidator = vine.compile(
+  vine.object({
+    status: vine.enum(['open', 'close']),
+  })
+)
+
 export const storeReportValidator = vine.compile(
   vine.object({
     reportableType: vine.enum(['Post', 'User', 'Topic', 'Other']).nullable().optional(),

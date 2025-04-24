@@ -121,13 +121,10 @@ router
     router
       .group(() => {
         router
-          .group(() => {
-            router.get('/', [ReportsController, 'index']) // lista zgłoszeń (admin)
-            // router.patch('/:id/close', [ReportsController, 'close']) //zamkniecie zgłoszenia
-          })
-          .use([middleware.role('admin')])
-        router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości
+        router.get('/', [ReportsController, 'index']).use([middleware.role('admin')]) // lista zgłoszeń (admin)
 
+        router.patch('/:id/status', [ReportsController, 'updateStatus']) //zamkniecie zgłoszenia
+        router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości
         router.post('/', [ReportsController, 'store'])
         router.post('/:id', [ReportsController, 'addMessage']) // dodawanie wiadomości do zgłoszenia
         // router.get('/my/reports', [ReportsController, 'myReports']) // dla usera dane jego zgłsozen

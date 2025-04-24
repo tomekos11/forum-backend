@@ -5,9 +5,15 @@ import {
   existsForType,
   indexReportValidator,
   storeReportValidator,
+  updateReportStatusValidator,
 } from '#validators/report'
 import ReportMessage from '#models/report_message'
-
+/*
+ * Report status:
+ * - pending - > waiting for admin/moderator
+ * - in_progress - > admin/moderator is working on it (user can add message)
+ * - resolved - > admin/moderator has resolved the report or user has closed it
+ */
 export default class ReportsController {
   public async index({ request, response }: HttpContext) {
     const {
@@ -145,6 +151,47 @@ export default class ReportsController {
     return response.ok({
       ...report.serialize(),
       reportable,
+    })
+  }
+
+  public async updateStatus({ auth, params, request, response }: HttpContext) {
+    const user = auth.use('jwt').user!
+    const { status } = await updateReportStatusValidator.validate(request.only(['status']))
+    const report = await Report.findOrFail(params.id)
+
+    if (user.id === report.reporterId) {
+      if (status !== 'close') {
+        return response.badRequest({
+          message: 'Zgłaszający użytkownik może tylko zamknąć zgłoszenie.',
+        })
+      }
+      report.status = 'resolved'
+    } else if (user.role === 'admin' || user.role === 'moderator') {
+      if ((report.status === 'pending' || report.status === 'in_progress') && status === 'close') {
+        report.status = 'resolved'
+      } else if (report.status === 'resolved') {
+        const lastMessage = await ReportMessage.query()
+          .where('report_id', report.id)
+          .orderBy('created_at', 'desc')
+          .first()
+
+        if (lastMessage?.userId === report.reporterId) {
+          report.status = 'pending'
+        } else if (lastMessage?.userId !== report.reporterId) {
+          report.status = 'in_progress'
+        }
+      }
+    } else {
+      return response.forbidden({
+        message: 'Nie masz uprawnień do zmiany statusu zgłoszenia.',
+      })
+    }
+
+    await report.save()
+
+    return response.ok({
+      message: `Status zgłoszenia został zmieniony.`,
+      report,
     })
   }
 }
