@@ -25,6 +25,7 @@ const ProfilesController = () => import('#controllers/profiles_controller')
 const ReactionSController = () => import('#controllers/reactions_controller')
 const NotificationsController = () => import('#controllers/notifications_controller')
 const BansController = () => import('#controllers/bans_controller')
+const ReportsController = () => import('#controllers/reports_controller')
 
 router.post('/login', [AuthController, 'login']).use(throttle)
 router.post('/register', [AuthController, 'register'])
@@ -116,5 +117,19 @@ router
       })
       .prefix('bans')
       .use([middleware.role('admin')])
+
+    router
+      .group(() => {
+        router
+        router.get('/', [ReportsController, 'index']).use([middleware.role('admin')]) // lista zgłoszeń (admin)
+
+        router.patch('/:id/status', [ReportsController, 'updateStatus']) //zamkniecie zgłoszenia
+        router.get('/my', [ReportsController, 'myReports']) // dla usera dane jego zgłsozen
+        router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości
+        router.post('/', [ReportsController, 'store'])
+        router.post('/:id', [ReportsController, 'addMessage']) // dodawanie wiadomości do zgłoszenia
+      })
+      .prefix('reports')
+      .use([middleware.auth()])
   })
   .use([middleware.tracker(), middleware.registerUserActivity(), middleware.checkIfBanned()])
