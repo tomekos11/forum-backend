@@ -36,6 +36,7 @@ export default class extends BaseSeeder {
     await PostHistory.createMany(postHistories)
 
     post2.isDeleted = true
+    post2.content = '[Post został usunięty]'
     await post2.save()
 
     const additionalHistories = [

@@ -40,6 +40,15 @@ export const REPORT_REASONS = {
 } as const
 
 export const getValidReasons = (reportableType: string | undefined): readonly string[] => {
+  if (reportableType === 'all') {
+    return [
+      ...REPORT_REASONS.post_reason,
+      ...REPORT_REASONS.user_reason,
+      ...REPORT_REASONS.topic_reason,
+      ...REPORT_REASONS.other_reason,
+    ]
+  }
+
   switch (reportableType) {
     case 'Post':
       return REPORT_REASONS.post_reason

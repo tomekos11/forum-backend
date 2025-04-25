@@ -15,13 +15,19 @@ import ReportMessage from '#models/report_message'
  * - resolved - > admin/moderator has resolved the report or user has closed it
  */
 export default class ReportsController {
+  /*
+  Pododawać rzeczy związane z reasonem -> pobieranie po reasonie, grupowanie po reasonnie, info ile z jakich kategorii k
+  */
   public async index({ request, response }: HttpContext) {
     const {
       status = 'pending',
       type,
       page = 1,
       perPage = 10,
-    } = await indexReportValidator.validate(request.only(['status', 'type', 'page', 'perPage']))
+      reason,
+    } = await indexReportValidator.validate(
+      request.only(['status', 'type', 'page', 'perPage', 'reason'])
+    )
 
     const reportsQuery = Report.query()
       .preload('reporter')
@@ -38,8 +44,29 @@ export default class ReportsController {
       reportsQuery.where('reportable_type', type)
     }
 
+    if (reason) {
+      reportsQuery.where('reason', reason)
+    }
+
     const paginated = await reportsQuery.paginate(page, perPage)
-    return response.ok(paginated)
+
+    const statusCounts = await Report.query().select('status').count('* as total').groupBy('status')
+
+    const typeCounts = await Report.query()
+      .select('reportable_type')
+      .count('* as total')
+      .groupBy('reportable_type')
+
+    const stats = {
+      statuses: Object.fromEntries(statusCounts.map((row) => [row.status, +row.$extras.total])),
+      types: Object.fromEntries(typeCounts.map((row) => [row.reportableType, +row.$extras.total])),
+    }
+
+    return response.ok({
+      meta: paginated.getMeta(),
+      data: paginated.serialize().data,
+      stats,
+    })
   }
 
   public async store({ request, auth, response }: HttpContext) {

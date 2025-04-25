@@ -14,7 +14,7 @@ export default class Report extends BaseModel {
   declare reporterId: number
 
   @column()
-  declare reportableType: string | null
+  declare reportableType: string
 
   @column()
   declare reportableId: number | null

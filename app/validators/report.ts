@@ -12,6 +12,28 @@ export const indexReportValidator = vine.compile(
     type: vine.enum(['User', 'Post', 'Topic', 'Other']).optional(),
     page: vine.number().positive().optional(),
     perPage: vine.number().positive().max(100).optional(),
+    reason: vine
+      .string()
+      .use(
+        vine.createRule((value: unknown, _: unknown, field: FieldContext) => {
+          if (typeof value !== 'string') {
+            return
+          }
+
+          const validReasons = !field.parent.status
+            ? getValidReasons('all')
+            : getValidReasons(field.parent.type)
+
+          if (!validReasons.includes(value)) {
+            field.report(
+              `The field "${field.name}" must contain one of the allowed reasons: ${validReasons.join(', ')}`,
+              'invalidReason',
+              field
+            )
+          }
+        })()
+      )
+      .optional(),
   })
 )
 
