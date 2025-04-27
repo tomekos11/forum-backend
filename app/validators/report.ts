@@ -2,7 +2,7 @@ import Post from '#models/post'
 import Topic from '#models/topic'
 import User from '#models/user'
 import vine from '@vinejs/vine'
-import type { FieldContext } from '@vinejs/vine/types' // Opcjonalnie, dla lepszego typowania w callbacku
+import type { FieldContext } from '@vinejs/vine/types'
 
 import { getValidReasons } from '../constants/report_reasons.js'
 
