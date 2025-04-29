@@ -28,4 +28,8 @@ export default class PostReply extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  public page?: number
+  public perPage?: number
+  public rowNumber?: number
 }

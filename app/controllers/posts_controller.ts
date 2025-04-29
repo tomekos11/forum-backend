@@ -90,6 +90,7 @@ export default class PostController {
     const query = topic
       .related('posts')
       .query()
+      .select('*')
       .preload('user', (userQuery) => {
         userQuery.preload('data')
       })
@@ -131,7 +132,26 @@ export default class PostController {
 
     const { data: posts, meta } = paginatedPosts.serialize()
 
+    const quotedPostIds = posts
+      .filter((post) => post.quote?.quotedPost)
+      .map((post) => post.quote.quotedPost.id)
+
+    const quotedPosts = await db
+      .from('posts')
+      .whereIn('id', quotedPostIds)
+      .select('*')
+      .orderBy('created_at', 'asc')
+      .select(db.raw('ROW_NUMBER() OVER (ORDER BY posts.created_at ASC) AS rowNumber'))
+
     posts.forEach((post) => {
+      if (post.quote?.quotedPost) {
+        const quotedPost = quotedPosts.find((p) => p.id === post.quote.quotedPost.id)
+        if (quotedPost) {
+          post.quote.quotedPost.page = Math.ceil(quotedPost.rowNumber / 10)
+          post.quote.quotedPost.perPage = 10
+          post.quote.quotedPost.rowNumber = quotedPost.rowNumber % 10
+        }
+      }
       post.notification = post.notification.length ? true : false
     })
 
