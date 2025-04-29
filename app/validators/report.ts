@@ -24,9 +24,11 @@ export const indexReportValidator = vine.compile(
             ? getValidReasons('all')
             : getValidReasons(field.parent.type)
 
-          if (!validReasons.includes(value)) {
+          const validValues = validReasons.map((r) => r.value)
+
+          if (!validValues.includes(value)) {
             field.report(
-              `The field "${field.name}" must contain one of the allowed reasons: ${validReasons.join(', ')}`,
+              `The field "${field.name}" must contain one of the allowed reasons: ${validValues.join(', ')}`,
               'invalidReason',
               field
             )
@@ -54,10 +56,11 @@ export const storeReportValidator = vine.compile(
         }
 
         const validReasons = getValidReasons(field.parent.reportableType)
+        const validValues = validReasons.map((r) => r.value)
 
-        if (!validReasons.includes(value)) {
+        if (!validValues.includes(value)) {
           field.report(
-            `The field "${field.name}" must contain one of the allowed reasons: ${validReasons.join(', ')}`,
+            `The field "${field.name}" must contain one of the allowed reasons: ${validValues.join(', ')}`,
             'invalidReason',
             field
           )

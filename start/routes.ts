@@ -120,9 +120,9 @@ router
 
     router
       .group(() => {
-        router
         router.get('/', [ReportsController, 'index']).use([middleware.role('admin')]) // lista zgłoszeń (admin)
 
+        router.get('/reason', [ReportsController, 'getReportReasons'])
         router.patch('/:id/status', [ReportsController, 'updateStatus']) //zamkniecie zgłoszenia
         router.get('/my', [ReportsController, 'myReports']) // dla usera dane jego zgłsozen
         router.get('/:id', [ReportsController, 'show']) // szczegóły zgłoszenia + wiadomości

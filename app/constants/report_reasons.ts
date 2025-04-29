@@ -1,45 +1,60 @@
 export const REPORT_REASONS = {
-  // Powody zgłoszenia postów
   post_reason: [
-    'spam', // Spam
-    'violation_of_terms', // Naruszenie regulaminu
-    'inappropriate_content', // Treść nieodpowiednia
-    'hate_speech', // Mowa nienawiści
-    'misleading_information', // Wprowadzające w błąd informacje
-    'offensive_language', // Obraźliwy język
-    'illegal_activity', // Działalność nielegalna
+    { value: 'spam', plLabel: 'Spam', enLabel: 'Spam' },
+    {
+      value: 'violation_of_terms',
+      plLabel: 'Naruszenie regulaminu',
+      enLabel: 'Violation of terms',
+    },
+    {
+      value: 'inappropriate_content',
+      plLabel: 'Treść nieodpowiednia',
+      enLabel: 'Inappropriate content',
+    },
+    { value: 'hate_speech', plLabel: 'Mowa nienawiści', enLabel: 'Hate speech' },
+    {
+      value: 'misleading_information',
+      plLabel: 'Wprowadzające w błąd informacje',
+      enLabel: 'Misleading information',
+    },
+    { value: 'offensive_language', plLabel: 'Obraźliwy język', enLabel: 'Offensive language' },
+    { value: 'illegal_activity', plLabel: 'Działalność nielegalna', enLabel: 'Illegal activity' },
   ],
-
-  // Powody zgłoszenia użytkowników
   user_reason: [
-    'offensive_behavior', // Obraźliwe zachowanie
-    'spam', // Spam
-    'fake_account', // Fałszywe konto
-    'harassment', // Nękanie
-    'identity_theft', // Kradzież tożsamości
-    'impersonation', // Podszywanie się
-    'violence_or_threats', // Przemoc lub groźby
+    { value: 'offensive_behavior', plLabel: 'Obraźliwe zachowanie', enLabel: 'Offensive behavior' },
+    { value: 'spam', plLabel: 'Spam', enLabel: 'Spam' },
+    { value: 'fake_account', plLabel: 'Fałszywe konto', enLabel: 'Fake account' },
+    { value: 'harassment', plLabel: 'Nękanie', enLabel: 'Harassment' },
+    { value: 'identity_theft', plLabel: 'Kradzież tożsamości', enLabel: 'Identity theft' },
+    { value: 'impersonation', plLabel: 'Podszywanie się', enLabel: 'Impersonation' },
+    { value: 'violence_or_threats', plLabel: 'Przemoc lub groźby', enLabel: 'Violence or threats' },
   ],
-
-  // Powody zgłoszenia tematów
   topic_reason: [
-    'off_topic', // Nie na temat
-    'duplicate_topic', // Powielony temat
-    'offensive_language', // Obraźliwy język
-    'low_quality', // Niska jakość
-    'irrelevant_discussion', // Nieistotna dyskusja
+    { value: 'off_topic', plLabel: 'Nie na temat', enLabel: 'Off topic' },
+    { value: 'duplicate_topic', plLabel: 'Powielony temat', enLabel: 'Duplicate topic' },
+    { value: 'offensive_language', plLabel: 'Obraźliwy język', enLabel: 'Offensive language' },
+    { value: 'low_quality', plLabel: 'Niska jakość', enLabel: 'Low quality' },
+    {
+      value: 'irrelevant_discussion',
+      plLabel: 'Nieistotna dyskusja',
+      enLabel: 'Irrelevant discussion',
+    },
   ],
-
-  // Inne powody zgłoszenia
   other_reason: [
-    'other_reason', // Inny powód
-    'security_issue', // Problem z bezpieczeństwem
-    'privacy_breach', // Naruszenie prywatności
-    'bug_report', // Zgłoszenie błędu
+    { value: 'other_reason', plLabel: 'Inny powód', enLabel: 'Other reason' },
+    { value: 'security_issue', plLabel: 'Problem z bezpieczeństwem', enLabel: 'Security issue' },
+    { value: 'privacy_breach', plLabel: 'Naruszenie prywatności', enLabel: 'Privacy breach' },
+    { value: 'bug_report', plLabel: 'Zgłoszenie błędu', enLabel: 'Bug report' },
   ],
 } as const
 
-export const getValidReasons = (reportableType: string | undefined): readonly string[] => {
+type Reason = {
+  value: string
+  plLabel: string
+  enLabel: string
+}
+
+export const getValidReasons = (reportableType: string | undefined): readonly Reason[] => {
   if (reportableType === 'all') {
     return [
       ...REPORT_REASONS.post_reason,
