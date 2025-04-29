@@ -13,6 +13,7 @@ import UserService from '#services/user_service'
 import NewPost from '#events/new_post'
 import db from '@adonisjs/lucid/services/db'
 import MarkNotificationsRead from '#events/mark_notifications_read'
+import PostReply from '#models/post_reply'
 
 export default class PostController {
   public async store({ request, auth, response }: HttpContext) {
@@ -29,7 +30,20 @@ export default class PostController {
       content,
     })
 
+    if (quotedPostId) {
+      await PostReply.create({
+        postId: quotedPostId,
+        replyId: post.id,
+      })
+    }
+
     await post.load('user', (userQuery) => userQuery.preload('data'))
+
+    await post.load('quote', (quoteQuery) => {
+      quoteQuery.preload('quotedPost', (quotedPostQuery) => {
+        quotedPostQuery.preload('quote').preload('user')
+      })
+    })
 
     const serializedPost = post.serialize()
     serializedPost.reaction = { like: 0, dislike: 0 }
@@ -83,6 +97,12 @@ export default class PostController {
         PostHistoriesQuery.groupLimit(1).preload('editor')
       )
       .preload('reaction')
+      .preload('quote', (quoteQuery) => {
+        quoteQuery.preload('quotedPost', (quotedPostQuery) => {
+          quotedPostQuery.preload('quote').preload('user')
+        })
+      })
+
     if (sortBy === 'reaction_count') {
       query
         .select('posts.*')
