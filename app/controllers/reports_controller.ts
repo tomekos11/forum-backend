@@ -8,6 +8,8 @@ import {
   updateReportStatusValidator,
 } from '#validators/report'
 import ReportMessage from '#models/report_message'
+import { getReasons } from '../constants/report_reasons.js'
+
 /*
  * Report status:
  * - pending - > waiting for admin/moderator
@@ -248,5 +250,11 @@ export default class ReportsController {
     const paginatedReports = await query.paginate(page, perPage)
 
     return response.ok(paginatedReports)
+  }
+
+  public async getReportReasons({ response, request }: HttpContext) {
+    const { reason } = request.only(['reason'])
+    const reasons = await getReasons(reason)
+    return response.ok(reasons)
   }
 }

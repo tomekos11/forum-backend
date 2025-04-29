@@ -1,5 +1,5 @@
 export const REPORT_REASONS = {
-  post_reason: [
+  postReason: [
     { value: 'spam', plLabel: 'Spam', enLabel: 'Spam' },
     {
       value: 'violation_of_terms',
@@ -20,7 +20,7 @@ export const REPORT_REASONS = {
     { value: 'offensive_language', plLabel: 'Obraźliwy język', enLabel: 'Offensive language' },
     { value: 'illegal_activity', plLabel: 'Działalność nielegalna', enLabel: 'Illegal activity' },
   ],
-  user_reason: [
+  userReason: [
     { value: 'offensive_behavior', plLabel: 'Obraźliwe zachowanie', enLabel: 'Offensive behavior' },
     { value: 'spam', plLabel: 'Spam', enLabel: 'Spam' },
     { value: 'fake_account', plLabel: 'Fałszywe konto', enLabel: 'Fake account' },
@@ -29,7 +29,7 @@ export const REPORT_REASONS = {
     { value: 'impersonation', plLabel: 'Podszywanie się', enLabel: 'Impersonation' },
     { value: 'violence_or_threats', plLabel: 'Przemoc lub groźby', enLabel: 'Violence or threats' },
   ],
-  topic_reason: [
+  topicReason: [
     { value: 'off_topic', plLabel: 'Nie na temat', enLabel: 'Off topic' },
     { value: 'duplicate_topic', plLabel: 'Powielony temat', enLabel: 'Duplicate topic' },
     { value: 'offensive_language', plLabel: 'Obraźliwy język', enLabel: 'Offensive language' },
@@ -40,13 +40,13 @@ export const REPORT_REASONS = {
       enLabel: 'Irrelevant discussion',
     },
   ],
-  other_reason: [
+  otherReason: [
     { value: 'other_reason', plLabel: 'Inny powód', enLabel: 'Other reason' },
     { value: 'security_issue', plLabel: 'Problem z bezpieczeństwem', enLabel: 'Security issue' },
     { value: 'privacy_breach', plLabel: 'Naruszenie prywatności', enLabel: 'Privacy breach' },
     { value: 'bug_report', plLabel: 'Zgłoszenie błędu', enLabel: 'Bug report' },
   ],
-} as const
+}
 
 type Reason = {
   value: string
@@ -57,23 +57,42 @@ type Reason = {
 export const getValidReasons = (reportableType: string | undefined): readonly Reason[] => {
   if (reportableType === 'all') {
     return [
-      ...REPORT_REASONS.post_reason,
-      ...REPORT_REASONS.user_reason,
-      ...REPORT_REASONS.topic_reason,
-      ...REPORT_REASONS.other_reason,
+      ...REPORT_REASONS.postReason,
+      ...REPORT_REASONS.userReason,
+      ...REPORT_REASONS.topicReason,
+      ...REPORT_REASONS.otherReason,
     ]
   }
 
   switch (reportableType) {
     case 'Post':
-      return REPORT_REASONS.post_reason
+      return REPORT_REASONS.postReason
     case 'User':
-      return REPORT_REASONS.user_reason
+      return REPORT_REASONS.userReason
     case 'Topic':
-      return REPORT_REASONS.topic_reason
+      return REPORT_REASONS.topicReason
     case 'Other':
-      return REPORT_REASONS.other_reason
+      return REPORT_REASONS.otherReason
     default:
       return []
   }
+}
+
+type ReportableKey = 'post' | 'user' | 'topic' | 'other' | undefined
+export const getReasons = (
+  type: ReportableKey = undefined
+): Partial<Record<'postReason' | 'userReason' | 'topicReason' | 'otherReason', Reason[]>> => {
+  const reasonsMap = {
+    post: { key: 'postReason', value: REPORT_REASONS.postReason },
+    user: { key: 'userReason', value: REPORT_REASONS.userReason },
+    topic: { key: 'topicReason', value: REPORT_REASONS.topicReason },
+    other: { key: 'otherReason', value: REPORT_REASONS.otherReason },
+  } as const
+
+  if (!type) {
+    return REPORT_REASONS
+  }
+
+  const entry = reasonsMap[type]
+  return entry ? { [entry.key]: entry.value } : {}
 }

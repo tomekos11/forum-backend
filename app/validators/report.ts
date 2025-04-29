@@ -94,3 +94,9 @@ export const existsForType = async (
       return false
   }
 }
+
+export const reasonIndexValidator = vine.compile(
+  vine.object({
+    reason: vine.enum(['post', 'user', 'topic', 'other', undefined]),
+  })
+)
