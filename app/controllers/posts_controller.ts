@@ -18,7 +18,7 @@ export default class PostController {
   public async store({ request, auth, response }: HttpContext) {
     const user = await auth.use('jwt').authenticate()
 
-    const { content, topicId } = await storePostValidator.validate(request.all())
+    const { content, topicId, quotedPostId } = await storePostValidator.validate(request.all())
 
     const topic = await Topic.find(topicId)
     if (!topic || topic.isClosed) return response.badRequest({ message: 'Temat jest zamknięty.' })

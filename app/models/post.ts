@@ -6,6 +6,7 @@ import Topic from './topic.js'
 import PostHistory from './post_history.js'
 import Reaction from './reaction.js'
 import Notification from './notification.js'
+import PostReply from './post_reply.js'
 export default class Post extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
@@ -50,6 +51,16 @@ export default class Post extends BaseModel {
     foreignKey: 'pinnedPostId',
   })
   declare pinnedInTopic: HasOne<typeof Topic>
+
+  @hasOne(() => PostReply, {
+    foreignKey: 'replyId',
+  })
+  declare quote: HasOne<typeof PostReply>
+
+  @hasMany(() => PostReply, {
+    foreignKey: 'postId',
+  })
+  declare quotedBy: HasMany<typeof PostReply>
 
   @beforeUpdate()
   public static async storeHistory(post: Post) {
