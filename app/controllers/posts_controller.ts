@@ -132,12 +132,19 @@ export default class PostController {
 
     const { data: posts, meta } = paginatedPosts.serialize()
 
+    const quotedPostIds = posts
+      .filter((post) => post.quote?.quotedPost)
+      .map((post) => post.quote.quotedPost.id)
+
     const quotedPosts = await db
-      .from('posts')
-      .where('topic_id', topic.id)
-      .select('*')
-      .orderBy('created_at', 'asc')
-      .select(db.raw('ROW_NUMBER() OVER (ORDER BY posts.created_at ASC) AS rowNumber'))
+      .from((subquery) =>
+        subquery
+          .from('posts')
+          .where('topic_id', topic.id)
+          .select('id', db.raw('ROW_NUMBER() OVER (ORDER BY posts.id ASC) AS rowNumber'))
+          .as('ranked_posts')
+      )
+      .whereIn('id', quotedPostIds)
 
     posts.forEach((post) => {
       if (post.quote?.quotedPost) {
@@ -145,10 +152,10 @@ export default class PostController {
         if (quotedPost) {
           post.quote.quotedPost.page = Math.ceil(quotedPost.rowNumber / 10)
           post.quote.quotedPost.perPage = 10
-          post.quote.quotedPost.rowNumber = quotedPost.rowNumber % 10
+          post.quote.quotedPost.rowNumber = ((quotedPost.rowNumber - 1) % 10) + 1
         }
       }
-      post.notification = post.notification.length ? true : false
+      post.notification = !!post.notification.length
     })
 
     const data = ReactionService.summarizeReactions(posts, currentUser)
