@@ -6,6 +6,7 @@ import { unlinkSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import User from '#models/user'
 import Topic from '#models/topic'
+import db from '@adonisjs/lucid/services/db'
 
 export default class ProfilesController {
   public async show({ request, response }: HttpContext) {
@@ -35,7 +36,35 @@ export default class ProfilesController {
           query.groupLimit(1)
         })
 
-      return response.ok({ user, userTopics: topics })
+      const totalReplies = await db
+        .from('posts')
+        .join('post_replies', 'posts.id', 'post_replies.post_id')
+        .join('posts as reply_posts', 'reply_posts.id', 'post_replies.reply_id')
+        .where('posts.user_id', user.id)
+        .whereNot('reply_posts.user_id', user.id)
+        .count('* as total')
+        .first()
+
+      const mostRepliedPosts = await db
+        .from('posts')
+        .join('post_replies', 'posts.id', 'post_replies.post_id')
+        .join('posts as reply_posts', 'reply_posts.id', 'post_replies.reply_id')
+        .where('posts.user_id', user.id)
+        .whereNot('reply_posts.user_id', user.id)
+        .select('posts.id', 'posts.content')
+        .count('post_replies.id as reply_count')
+        .groupBy('posts.id', 'posts.content')
+        .orderBy('reply_count', 'desc')
+        .limit(3)
+
+      return response.ok({
+        user,
+        userTopics: topics,
+        replies: {
+          totalReplies: totalReplies?.total || 0,
+          mostRepliedPosts: mostRepliedPosts,
+        },
+      })
     } catch (error) {
       console.log(error)
       return response.status(422).send(error.messages)

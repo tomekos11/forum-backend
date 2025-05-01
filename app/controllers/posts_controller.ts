@@ -189,6 +189,7 @@ export default class PostController {
   }
 
   public async edit({ request, auth, response }: HttpContext) {
+    //TODO - edycja z cytowaniem. 3 opcje -> dodajemy cytowanie, edytujemy cytowanie, usuwamy cytowanie
     const user = await auth.use('jwt').authenticate()
 
     const { content, postId } = await editPostValidator.validate(request.all())
