@@ -47,7 +47,7 @@ export const updateReportStatusValidator = vine.compile(
 
 export const storeReportValidator = vine.compile(
   vine.object({
-    reportableType: vine.enum(['Post', 'User', 'Topic', 'Other']).nullable().optional(),
+    reportableType: vine.enum(['Post', 'User', 'Topic', 'Other']),
     reportableId: vine.number().nullable().optional(),
     reason: vine.string().use(
       vine.createRule((value: unknown, _: unknown, field: FieldContext) => {
@@ -57,6 +57,10 @@ export const storeReportValidator = vine.compile(
 
         const validReasons = getValidReasons(field.parent.reportableType)
         const validValues = validReasons.map((r) => r.value)
+
+        if (!validValues.length) {
+          return
+        }
 
         if (!validValues.includes(value)) {
           field.report(

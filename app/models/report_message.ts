@@ -17,7 +17,7 @@ export default class ReportMessage extends BaseModel {
   @column()
   declare message: string
 
-  @column()
+  @column({ serialize: Boolean })
   declare fromModerator: boolean
 
   @column.dateTime({ autoCreate: true })

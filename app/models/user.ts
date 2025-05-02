@@ -20,6 +20,7 @@ import UserData from './user_data.js'
 import Topic from './topic.js'
 import Ban from './ban.js'
 import BanService from '#services/ban_service'
+import Report from './report.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['username'],
@@ -58,6 +59,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @hasMany(() => Topic)
   declare topics: HasMany<typeof Topic>
+
+  @hasMany(() => Report, {
+    foreignKey: 'reporterId',
+  })
+  declare reports: HasMany<typeof Report>
 
   @manyToMany(() => Topic, {
     pivotTable: 'topic_user_follows',
