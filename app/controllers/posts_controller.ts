@@ -51,7 +51,21 @@ export default class PostController {
     UserService.updatePostStatsCache(user.id) // Aktualizacja countera
     NewPost.dispatch(post) //event emit
 
-    return response.created({ message: 'Post dodany!', post: serializedPost })
+    const postIndexResult = await Post.query()
+      .where('topic_id', topicId)
+      .where('id', '<', post.id)
+      .count('* as total')
+      .first()
+
+    const postIndex = Number(postIndexResult?.$extras.total ?? 0)
+    const page = Math.floor(postIndex / 10) + 1
+
+    return response.created({
+      message: 'Post dodany!',
+      post: serializedPost,
+      page: page,
+      perPage: 10,
+    })
   }
 
   public async index({ request, auth, response }: HttpContext) {
