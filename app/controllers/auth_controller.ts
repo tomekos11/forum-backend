@@ -25,7 +25,25 @@ export default class AuthController {
 
       const unread = await NotificationService.getUnreadGroupedByTopic(user.id)
 
-      return response.ok({ user, notifications: unread })
+      await user.load('reports', (reportQuery) => {
+        reportQuery.where('status', 'in_progress').preload('messages', (messageQuery) => {
+          messageQuery.groupOrderBy('created_at', 'desc').groupLimit(1)
+        })
+      })
+
+      const userReports = user.reports.filter((report) => {
+        const lastMessage = report.messages[0]
+        return lastMessage?.fromModerator
+      })
+
+      const userSerialized = user.serialize()
+      delete userSerialized.reports
+
+      return response.ok({
+        user: userSerialized,
+        notifications: unread,
+        reports: { userReports: userReports, count: userReports.length },
+      })
     } catch (error) {
       return response.unauthorized({ error: 'Nieprawidłowe dane logowania' })
     }
