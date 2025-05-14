@@ -104,3 +104,9 @@ export const reasonIndexValidator = vine.compile(
     reason: vine.enum(['post', 'user', 'topic', 'other', undefined]),
   })
 )
+
+export const getReportsReasonValidator = vine.compile(
+  vine.object({
+    reason: vine.enum(['post', 'user', 'topic', 'other']),
+  })
+)

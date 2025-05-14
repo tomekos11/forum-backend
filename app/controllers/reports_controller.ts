@@ -3,6 +3,7 @@ import Report from '#models/report'
 import {
   addMessageValidator,
   existsForType,
+  getReportsReasonValidator,
   indexReportValidator,
   storeReportValidator,
   updateReportStatusValidator,
@@ -253,7 +254,7 @@ export default class ReportsController {
   }
 
   public async getReportReasons({ response, request }: HttpContext) {
-    const { reason } = request.only(['reason'])
+    const { reason } = await getReportsReasonValidator.validate(request.only(['reason']))
     const reasons = await getReasons(reason)
     return response.ok(reasons)
   }
