@@ -40,6 +40,8 @@ export default defineConfig({
     () => import('@adonisjs/limiter/limiter_provider'),
     () => import('@adonisjs/static/static_provider'),
     () => import('@adonisjs/cache/cache_provider'),
+    () => import('@adonisjs/shield/shield_provider'),
+    () => import('@adonisjs/session/session_provider')
   ],
 
   /*
@@ -50,7 +52,11 @@ export default defineConfig({
   | List of modules to import before starting the application.
   |
   */
-  preloads: [() => import('#start/routes'), () => import('#start/kernel'), () => import('#start/events')],
+  preloads: [
+    () => import('#start/routes'),
+    () => import('#start/kernel'),
+    () => import('#start/events'),
+  ],
 
   /*
   |--------------------------------------------------------------------------
