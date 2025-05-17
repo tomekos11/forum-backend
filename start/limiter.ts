@@ -10,7 +10,10 @@
 */
 
 import limiter from '@adonisjs/limiter/services/main'
+import env from '#start/env'
+
+const isTest = env.get('NODE_ENV') === 'test'
 
 export const throttle = limiter.define('global', () => {
-  return limiter.allowRequests(10).every('1 minute')
+  return limiter.allowRequests(isTest ? 1000 : 10).every('1 minute')
 })

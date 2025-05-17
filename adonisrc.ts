@@ -41,7 +41,7 @@ export default defineConfig({
     () => import('@adonisjs/static/static_provider'),
     () => import('@adonisjs/cache/cache_provider'),
     () => import('@adonisjs/shield/shield_provider'),
-    () => import('@adonisjs/session/session_provider')
+    () => import('@adonisjs/session/session_provider'),
   ],
 
   /*
