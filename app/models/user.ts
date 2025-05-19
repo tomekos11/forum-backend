@@ -82,6 +82,21 @@ export default class User extends compose(BaseModel, AuthFinder) {
   }
 
   @computed()
+  public get isAtLeastModerator() {
+    return this.role === 'moderator' || this.role === 'admin'
+  }
+
+  @computed()
+  public get isModerator() {
+    return this.role === 'moderator'
+  }
+
+  @computed()
+  public get isAdmin() {
+    return this.role === 'admin'
+  }
+
+  @computed()
   public get banInfo() {
     return this.$extras.banInfo || { isBanned: false, unlockDate: null }
   }
