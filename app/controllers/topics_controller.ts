@@ -29,7 +29,7 @@ export default class TopicsController {
 
     const user = await auth.use('jwt').authenticate()
 
-    const isPrimary = user.role === 'admin' ? (payload.isPrimary ?? false) : false
+    const isPrimary = user.isAtLeastModerator ? (payload.isPrimary ?? false) : false
 
     const forum = await Forum.query().where('slug', params.forumSlug).first()
 

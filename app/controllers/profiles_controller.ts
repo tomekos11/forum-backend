@@ -101,7 +101,7 @@ export default class ProfilesController {
 
       let targetUser = currentUser
 
-      if (username && (currentUser.role === 'moderator' || currentUser.role === 'admin')) {
+      if (username && currentUser.isAtLeastModerator) {
         const foundUser = await User.findBy('username', username)
 
         if (!foundUser) {
@@ -136,7 +136,7 @@ export default class ProfilesController {
 
       let targetUser = currentUser
 
-      if (username && (currentUser.role === 'moderator' || currentUser.role === 'admin')) {
+      if (username && currentUser.isAtLeastModerator) {
         const foundUser = await User.findBy('username', username)
         if (!foundUser) {
           return response.status(404).send({ message: 'Użytkownik nie został znaleziony.' })

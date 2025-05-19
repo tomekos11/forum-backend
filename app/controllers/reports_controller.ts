@@ -118,7 +118,7 @@ export default class ReportsController {
       })
     }
 
-    if (user.role === 'admin' || user.role === 'moderator') {
+    if (user.isAtLeastModerator) {
       if (report.status === 'pending') {
         report.status = 'in_progress'
       } else if (report.status === 'resolved') {
@@ -145,7 +145,7 @@ export default class ReportsController {
       reportId: report.id,
       userId: user.id,
       message: message,
-      fromModerator: user.role === 'admin' || user.role === 'moderator',
+      fromModerator: user.isAtLeastModerator,
     })
     await report.save()
 
@@ -165,7 +165,7 @@ export default class ReportsController {
       })
       .firstOrFail()
 
-    const isAdmin = user.role === 'admin' || user.role === 'moderator'
+    const isAdmin = user.isAtLeastModerator
     const isReporter = report.reporterId === user.id
 
     if (!isAdmin && !isReporter) {
@@ -195,7 +195,7 @@ export default class ReportsController {
         })
       }
       report.status = 'resolved'
-    } else if (user.role === 'admin' || user.role === 'moderator') {
+    } else if (user.isAtLeastModerator) {
       if ((report.status === 'pending' || report.status === 'in_progress') && status === 'close') {
         report.status = 'resolved'
       } else if (report.status === 'resolved') {
