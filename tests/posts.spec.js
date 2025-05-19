@@ -1,18 +1,10 @@
 import env from '../build/start/env.js';
 import chakram from 'chakram';
-// import app from '@adonisjs/core/services/app';
-// import Post from '#models/post';
 
 const expect = chakram.expect
 
 const BASE_URL = 'http://localhost:3333'
 const testTopicId = 1;
-
-// class FakePost {
-//   static async create(data) {
-//     return { id: 999, ...data, user: { id: 1, username: 'fakeuser' } }
-//   }
-// }
 
 describe('API Posts Tests', () => {
 
@@ -25,18 +17,6 @@ describe('API Posts Tests', () => {
       expect(response).to.have.status(401);
       return chakram.wait();
     });
-
-
-
-    // before(() => {
-    //     app.container.swap(Post, () => {
-    //         return new FakePost()
-    //     })
-    // })
-
-    // after(() => {
-    //     app.container.restoreAll()
-    // })
 
     it('Powinien dodać post po zalogowaniu (z tokenem w ciastku)', async () => {
         // Krok 1: zaloguj się i wyciągnij ciasteczko
@@ -55,7 +35,6 @@ describe('API Posts Tests', () => {
             for (const cookie of cookies) {
             if (cookie.startsWith('token=')) {
                 tokenCookie = cookie
-                console.log(tokenCookie);
                 break;
             }
             }
@@ -73,7 +52,6 @@ describe('API Posts Tests', () => {
         });
 
         expect(postResponse).to.have.status(201);
-        // expect(postResponse.body.post.id).to.equal(999)
         return chakram.wait();
     });
 
