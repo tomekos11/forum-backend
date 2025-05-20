@@ -10,7 +10,10 @@ export default class OnlineTrackerMiddleware {
     let userId: string | undefined
 
     try {
-      const user = await auth.use('jwt').authenticate()
+      const user = await auth.use('jwt').user
+      if (!user) {
+        throw new Error('User not found')
+      }
       userId = user.id.toString()
 
       try {
