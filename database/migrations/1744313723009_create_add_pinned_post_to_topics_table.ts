@@ -17,6 +17,7 @@ export default class extends BaseSchema {
 
   async down() {
     this.schema.alterTable(this.tableName, (table) => {
+      table.dropForeign('pinned_post_id')
       table.dropColumn('pinned_post_id')
     })
   }

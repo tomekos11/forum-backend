@@ -8,6 +8,7 @@ import testUtils from '@adonisjs/core/services/test_utils'
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
  */
+export const files = ['tests/**/*.test.ts']
 
 /**
  * Configure Japa plugins in the plugins array.
@@ -23,7 +24,7 @@ export const plugins: Config['plugins'] = [assert(), apiClient(), pluginAdonisJS
  * The teardown functions are executed after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [],
+  setup: [() => testUtils.db().migrate()],
   teardown: [],
 }
 
@@ -32,7 +33,5 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
  * Learn more - https://japa.dev/docs/test-suites#lifecycle-hooks
  */
 export const configureSuite: Config['configureSuite'] = (suite) => {
-  if (['browser', 'functional', 'e2e'].includes(suite.name)) {
-    return suite.setup(() => testUtils.httpServer().start())
-  }
+  suite.setup(() => testUtils.httpServer().start())
 }
