@@ -19,61 +19,59 @@ test.group('Auth', (group) => {
     assert.isNotNull(user)
   })
 
-  // test('should not register an existing user', async ({ client }) => {
-  //   await User.create({ username: 'existing', password: await hash('password', 10) })
+  test('should not register an existing user', async ({ client, assert }) => {
+    const response = await client.post('/register').form({
+      username: 'newuser123',
+      password: 'Secret123!',
+    })
 
-  //   const response = await client.post('/register').form({
-  //     username: 'existing',
-  //     password: 'secret123',
-  //   })
+    response.assertStatus(400)
+    assert.deepEqual(response.body(), {
+      error: 'Użytkownik o tej nazwie już istnieje',
+    })
+  })
 
-  //   response.assertStatus(400)
-  //   response.assertBodyContains({ error: 'Użytkownik o tej nazwie już istnieje' })
-  // })
+  test('should not login with invalid credentials', async ({ client }) => {
+    const response = await client.post('/login').form({
+      username: 'newuser123',
+      password: 'WrongPass1!',
+    })
 
-  // test('should login valid user', async ({ client }) => {
-  //   await User.create({ username: 'testuser', password: await hash('secret123', 10) })
+    response.assertStatus(401)
+    response.assertBodyContains({ error: 'Nieprawidłowe dane logowania' })
+  })
 
-  //   const response = await client.post('/login').form({
-  //     username: 'testuser',
-  //     password: 'secret123',
-  //   })
+  test('should logout and clear token', async ({ client }) => {
+    const login = await client.post('/login').form({
+      username: 'newuser123',
+      password: 'Secret123!',
+    })
 
-  //   response.assertStatus(200)
-  //   response.assertBodyContains({
-  //     user: { username: 'testuser' },
-  //     notifications: [],
-  //     reports: { count: 0 },
-  //   })
-  // })
+    const token = login.response.headers['set-cookie']
+    const response = await client.get('/logout').header('cookie', token)
 
-  // test('should not login with invalid credentials', async ({ client }) => {
-  //   await User.create({ username: 'invaliduser', password: await hash('correctpass', 10) })
+    response.assertStatus(200)
+    response.assertBodyContains({ message: 'Wylogowano' })
+  })
 
-  //   const response = await client.post('/login').form({
-  //     username: 'invaliduser',
-  //     password: 'wrongpass',
-  //   })
+  test('should throttle after too many failed login attempts', async ({ client }) => {
+    // Wysyłamy 10 błędnych prób logowania
+    for (let i = 0; i < 28; i++) {
+      await client.post('/login').form({
+        username: 'newuser123',
+        password: 'WrongPassword',
+      })
+    }
 
-  //   response.assertStatus(401)
-  //   response.assertBodyContains({ error: 'Nieprawidłowe dane logowania' })
-  // })
+    // 11. próba powinna zostać zablokowana (HTTP 429)
+    const response = await client.post('/login').form({
+      username: 'throttleuser',
+      password: 'WrongPassword',
+    })
 
-  // test('should logout and clear token', async ({ client }) => {
-  //   const user = await User.create({
-  //     username: 'logoutuser',
-  //     password: await hash('secret123', 10),
-  //   })
-
-  //   const login = await client.post('/login').form({
-  //     username: 'logoutuser',
-  //     password: 'secret123',
-  //   })
-
-  //   const token = login.response.headers['set-cookie']
-  //   const response = await client.post('/logout').header('cookie', token)
-
-  //   response.assertStatus(200)
-  //   response.assertBodyContains({ message: 'Wylogowano' })
-  // })
+    response.assertStatus(429)
+    response.assertBodyContains({
+      errors: [{ message: 'Too many requests' }],
+    })
+  })
 })
