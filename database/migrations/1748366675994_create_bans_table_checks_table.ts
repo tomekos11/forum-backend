@@ -14,7 +14,6 @@ export default class extends BaseSchema {
     await this.schema.raw(`
       ALTER TABLE ${this.tableName}
         ADD CONSTRAINT bans_reason_length CHECK (char_length(reason) >= 3),
-        ADD CONSTRAINT bans_banned_until_future CHECK (banned_until IS NULL OR banned_until > created_at),
         ADD CONSTRAINT bans_no_self_ban CHECK (user_id <> banned_by)
     `)
   }
