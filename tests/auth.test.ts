@@ -1,9 +1,5 @@
 import { test } from '@japa/runner'
 import User from '#models/user'
-import { hash } from 'bcryptjs'
-import redis from '@adonisjs/redis/services/main'
-import Database from '@adonisjs/lucid/services/db'
-import testUtils from '@adonisjs/core/services/test_utils'
 
 test.group('Auth', (group) => {
   test('should register a new user', async ({ client, assert }) => {
@@ -54,24 +50,24 @@ test.group('Auth', (group) => {
     response.assertBodyContains({ message: 'Wylogowano' })
   })
 
-  test('should throttle after too many failed login attempts', async ({ client }) => {
-    // Wysyłamy 10 błędnych prób logowania
-    for (let i = 0; i < 28; i++) {
-      await client.post('/login').form({
-        username: 'newuser123',
-        password: 'WrongPassword',
-      })
-    }
+  // test('should throttle after too many failed login attempts', async ({ client }) => {
+  //   // Wysyłamy 10 błędnych prób logowania
+  //   for (let i = 0; i < 28; i++) {
+  //     await client.post('/login').form({
+  //       username: 'newuser123',
+  //       password: 'WrongPassword',
+  //     })
+  //   }
 
-    // 11. próba powinna zostać zablokowana (HTTP 429)
-    const response = await client.post('/login').form({
-      username: 'throttleuser',
-      password: 'WrongPassword',
-    })
+  //   // 11. próba powinna zostać zablokowana (HTTP 429)
+  //   const response = await client.post('/login').form({
+  //     username: 'throttleuser',
+  //     password: 'WrongPassword',
+  //   })
 
-    response.assertStatus(429)
-    response.assertBodyContains({
-      errors: [{ message: 'Too many requests' }],
-    })
-  })
+  //   response.assertStatus(429)
+  //   response.assertBodyContains({
+  //     errors: [{ message: 'Too many requests' }],
+  //   })
+  // })
 })

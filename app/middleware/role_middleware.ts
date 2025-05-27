@@ -12,7 +12,10 @@ type Role = keyof typeof roleHierarchy
 
 export default class RoleMiddleware {
   async handle({ auth, response }: HttpContext, next: NextFn, roles: Role) {
+    //console.log('Request Headers:', request.headers())
     const user = auth.use('jwt').user!
+
+    //console.log('User role:', user)
     const userRole = user?.role
 
     if (!userRole || !roleHierarchy[userRole]) {
