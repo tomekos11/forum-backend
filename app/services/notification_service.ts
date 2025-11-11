@@ -7,7 +7,7 @@ export default class NotificationService {
       .where('user_id', userId)
       .where('read', false)
       .groupBy('topic_id')
-      .select('*')
+      .select('topic_id')
       .count('* as total')
       .preload('topic', (topicQuery) => {
         topicQuery.preload('forum')

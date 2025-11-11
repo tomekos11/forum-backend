@@ -12,7 +12,7 @@ export default class extends BaseSeeder {
       user2.related('bans').create({
         bannedBy: 1,
         bannedUntil: DateTime.now().plus({ days: 30 }),
-        comment: {},
+        comment: null,
         reason: 'ban testowy',
       })
 
