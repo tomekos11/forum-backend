@@ -35,6 +35,13 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for CORS
+  |----------------------------------------------------------
+  */
+  CORS_ALLOWED_ORIGINS: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring the limiter package
   |----------------------------------------------------------
   */
