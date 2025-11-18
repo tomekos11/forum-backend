@@ -1,123 +1,45 @@
-/*
-|--------------------------------------------------------------------------
-| Environment variables service
-|--------------------------------------------------------------------------
-|
-| The `Env.create` method creates an instance of the Env service. The
-| service validates the environment variables and also cast values
-| to JavaScript data types.
-|
-*/
-
 import { Env } from '@adonisjs/core/env'
 
-// export default await Env.create(new URL('../', import.meta.url), {
-// NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
-// PORT: Env.schema.number(),
-// APP_KEY: Env.schema.string(),
-// HOST: Env.schema.string({ format: 'host' }),
-// LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
-// /*
-// |----------------------------------------------------------
-// | Variables for configuring database connection
-// |----------------------------------------------------------
-// */
-// DB_HOST: Env.schema.string({ format: 'host' }),
-// DB_PORT: Env.schema.number(),
-// DB_USER: Env.schema.string(),
-// DB_PASSWORD: Env.schema.string.optional(),
-// DB_DATABASE: Env.schema.string(),
-// REDIS_HOST: Env.schema.string({ format: 'host' }),
-// REDIS_PORT: Env.schema.number(),
-// REDIS_PASSWORD: Env.schema.string.optional(),
-// /*
-// |----------------------------------------------------------
-// | Variables for CORS
-// |----------------------------------------------------------
-// */
-// CORS_ALLOWED_ORIGINS: Env.schema.string(),
-// /*
-// |----------------------------------------------------------
-// | Variables for configuring the limiter package
-// |----------------------------------------------------------
-// */
-// LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
-// /*
-// |----------------------------------------------------------
-// | Variables for configuring session package
-// |----------------------------------------------------------
-// */
-// SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
-// /*
-// |----------------------------------------------------------
-// | Variables for testing
-// |----------------------------------------------------------
-// */
-// USER_LOGIN: Env.schema.string(),
-// USER_PASSWORD: Env.schema.string(),
-// BANNED_USER_LOGIN: Env.schema.string(),
-// BANNED_USER_PASSWORD: Env.schema.string(),
-// })
+const isProd = process.env.NODE_ENV === 'production'
 
-export default await Env.create(new URL('../', import.meta.url), {
-  NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const, [Env.rules.optional()]),
+/*
+|--------------------------------------------------------------------------
+| DEV SCHEMA – pełna walidacja
+|--------------------------------------------------------------------------
+*/
+const devSchema = {
+  NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
+  PORT: Env.schema.number(),
+  APP_KEY: Env.schema.string(),
+  HOST: Env.schema.string({ format: 'host' }),
+  LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'] as const),
 
-  PORT: Env.schema.number.optional(),
-  APP_KEY: Env.schema.string.optional(),
-  HOST: Env.schema.string.optional({ format: 'host' }),
-
-  LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'] as const, [
-    Env.rules.optional(),
-  ]),
-
-  /*
-  |--------------------------------------------------------------------------
-  | Database
-  |--------------------------------------------------------------------------
-  */
-  DB_HOST: Env.schema.string.optional({ format: 'host' }),
-  DB_PORT: Env.schema.number.optional(),
-  DB_USER: Env.schema.string.optional(),
+  DB_HOST: Env.schema.string({ format: 'host' }),
+  DB_PORT: Env.schema.number(),
+  DB_USER: Env.schema.string(),
   DB_PASSWORD: Env.schema.string.optional(),
-  DB_DATABASE: Env.schema.string.optional(),
+  DB_DATABASE: Env.schema.string(),
 
-  /*
-  |--------------------------------------------------------------------------
-  | Redis
-  |--------------------------------------------------------------------------
-  */
-  REDIS_HOST: Env.schema.string.optional({ format: 'host' }),
-  REDIS_PORT: Env.schema.number.optional(),
+  REDIS_HOST: Env.schema.string({ format: 'host' }),
+  REDIS_PORT: Env.schema.number(),
   REDIS_PASSWORD: Env.schema.string.optional(),
 
-  /*
-  |--------------------------------------------------------------------------
-  | CORS
-  |--------------------------------------------------------------------------
-  */
-  CORS_ALLOWED_ORIGINS: Env.schema.string.optional(),
+  CORS_ALLOWED_ORIGINS: Env.schema.string(),
 
-  /*
-  |--------------------------------------------------------------------------
-  | Limiter
-  |--------------------------------------------------------------------------
-  */
-  LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const, [Env.rules.optional()]),
+  LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
+  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
 
-  /*
-  |--------------------------------------------------------------------------
-  | Session
-  |--------------------------------------------------------------------------
-  */
-  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const, [Env.rules.optional()]),
+  USER_LOGIN: Env.schema.string(),
+  USER_PASSWORD: Env.schema.string(),
+  BANNED_USER_LOGIN: Env.schema.string(),
+  BANNED_USER_PASSWORD: Env.schema.string(),
+}
 
-  /*
-  |--------------------------------------------------------------------------
-  | Testing only
-  |--------------------------------------------------------------------------
-  */
-  USER_LOGIN: Env.schema.string.optional(),
-  USER_PASSWORD: Env.schema.string.optional(),
-  BANNED_USER_LOGIN: Env.schema.string.optional(),
-  BANNED_USER_PASSWORD: Env.schema.string.optional(),
-})
+/*
+|--------------------------------------------------------------------------
+| PROD SCHEMA – ZERO walidacji
+|--------------------------------------------------------------------------
+*/
+const prodSchema = {}
+
+export default await Env.create(new URL('../', import.meta.url), isProd ? prodSchema : devSchema)
