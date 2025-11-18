@@ -11,50 +11,113 @@
 
 import { Env } from '@adonisjs/core/env'
 
+// export default await Env.create(new URL('../', import.meta.url), {
+// NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
+// PORT: Env.schema.number(),
+// APP_KEY: Env.schema.string(),
+// HOST: Env.schema.string({ format: 'host' }),
+// LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
+// /*
+// |----------------------------------------------------------
+// | Variables for configuring database connection
+// |----------------------------------------------------------
+// */
+// DB_HOST: Env.schema.string({ format: 'host' }),
+// DB_PORT: Env.schema.number(),
+// DB_USER: Env.schema.string(),
+// DB_PASSWORD: Env.schema.string.optional(),
+// DB_DATABASE: Env.schema.string(),
+// REDIS_HOST: Env.schema.string({ format: 'host' }),
+// REDIS_PORT: Env.schema.number(),
+// REDIS_PASSWORD: Env.schema.string.optional(),
+// /*
+// |----------------------------------------------------------
+// | Variables for CORS
+// |----------------------------------------------------------
+// */
+// CORS_ALLOWED_ORIGINS: Env.schema.string(),
+// /*
+// |----------------------------------------------------------
+// | Variables for configuring the limiter package
+// |----------------------------------------------------------
+// */
+// LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
+// /*
+// |----------------------------------------------------------
+// | Variables for configuring session package
+// |----------------------------------------------------------
+// */
+// SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
+// /*
+// |----------------------------------------------------------
+// | Variables for testing
+// |----------------------------------------------------------
+// */
+// USER_LOGIN: Env.schema.string(),
+// USER_PASSWORD: Env.schema.string(),
+// BANNED_USER_LOGIN: Env.schema.string(),
+// BANNED_USER_PASSWORD: Env.schema.string(),
+// })
+
 export default await Env.create(new URL('../', import.meta.url), {
-  // NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
-  // PORT: Env.schema.number(),
-  // APP_KEY: Env.schema.string(),
-  // HOST: Env.schema.string({ format: 'host' }),
-  // LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
-  // /*
-  // |----------------------------------------------------------
-  // | Variables for configuring database connection
-  // |----------------------------------------------------------
-  // */
-  // DB_HOST: Env.schema.string({ format: 'host' }),
-  // DB_PORT: Env.schema.number(),
-  // DB_USER: Env.schema.string(),
-  // DB_PASSWORD: Env.schema.string.optional(),
-  // DB_DATABASE: Env.schema.string(),
-  // REDIS_HOST: Env.schema.string({ format: 'host' }),
-  // REDIS_PORT: Env.schema.number(),
-  // REDIS_PASSWORD: Env.schema.string.optional(),
-  // /*
-  // |----------------------------------------------------------
-  // | Variables for CORS
-  // |----------------------------------------------------------
-  // */
-  // CORS_ALLOWED_ORIGINS: Env.schema.string(),
-  // /*
-  // |----------------------------------------------------------
-  // | Variables for configuring the limiter package
-  // |----------------------------------------------------------
-  // */
-  // LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
-  // /*
-  // |----------------------------------------------------------
-  // | Variables for configuring session package
-  // |----------------------------------------------------------
-  // */
-  // SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
-  // /*
-  // |----------------------------------------------------------
-  // | Variables for testing
-  // |----------------------------------------------------------
-  // */
-  // USER_LOGIN: Env.schema.string(),
-  // USER_PASSWORD: Env.schema.string(),
-  // BANNED_USER_LOGIN: Env.schema.string(),
-  // BANNED_USER_PASSWORD: Env.schema.string(),
+  NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const, [Env.rules.optional()]),
+
+  PORT: Env.schema.number.optional(),
+  APP_KEY: Env.schema.string.optional(),
+  HOST: Env.schema.string.optional({ format: 'host' }),
+
+  LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'] as const, [
+    Env.rules.optional(),
+  ]),
+
+  /*
+  |--------------------------------------------------------------------------
+  | Database
+  |--------------------------------------------------------------------------
+  */
+  DB_HOST: Env.schema.string.optional({ format: 'host' }),
+  DB_PORT: Env.schema.number.optional(),
+  DB_USER: Env.schema.string.optional(),
+  DB_PASSWORD: Env.schema.string.optional(),
+  DB_DATABASE: Env.schema.string.optional(),
+
+  /*
+  |--------------------------------------------------------------------------
+  | Redis
+  |--------------------------------------------------------------------------
+  */
+  REDIS_HOST: Env.schema.string.optional({ format: 'host' }),
+  REDIS_PORT: Env.schema.number.optional(),
+  REDIS_PASSWORD: Env.schema.string.optional(),
+
+  /*
+  |--------------------------------------------------------------------------
+  | CORS
+  |--------------------------------------------------------------------------
+  */
+  CORS_ALLOWED_ORIGINS: Env.schema.string.optional(),
+
+  /*
+  |--------------------------------------------------------------------------
+  | Limiter
+  |--------------------------------------------------------------------------
+  */
+  LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const, [Env.rules.optional()]),
+
+  /*
+  |--------------------------------------------------------------------------
+  | Session
+  |--------------------------------------------------------------------------
+  */
+  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const, [Env.rules.optional()]),
+
+  /*
+  |--------------------------------------------------------------------------
+  | Testing only
+  |--------------------------------------------------------------------------
+  */
+  USER_LOGIN: Env.schema.string.optional(),
+  USER_PASSWORD: Env.schema.string.optional(),
+  BANNED_USER_LOGIN: Env.schema.string.optional(),
+  BANNED_USER_PASSWORD: Env.schema.string.optional(),
 })
