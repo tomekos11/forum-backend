@@ -1,8 +1,11 @@
-import env from '#start/env'
+// import env from '#start/env'
 import { defineConfig, stores } from '@adonisjs/limiter'
+import { loadEnv } from './secrets.js'
+
+const env = await loadEnv()
 
 const limiterConfig = defineConfig({
-  default: env.get('LIMITER_STORE'),
+  default: env.LIMITER_STORE as 'database' | 'memory',
   stores: {
     /**
      * Database store to save rate limiting data inside a

@@ -1,6 +1,9 @@
-import env from '#start/env'
+// import env from '#start/env'
 import app from '@adonisjs/core/services/app'
 import { defineConfig, stores } from '@adonisjs/session'
+import { loadEnv } from './secrets.js'
+
+const env = await loadEnv()
 
 const sessionConfig = defineConfig({
   enabled: true,
@@ -34,7 +37,7 @@ const sessionConfig = defineConfig({
    * variable in order to infer the store name without any
    * errors.
    */
-  store: env.get('SESSION_DRIVER'),
+  store: env.SESSION_DRIVER as 'cookie' | 'memory',
 
   /**
    * List of configured stores. Refer documentation to see

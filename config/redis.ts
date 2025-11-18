@@ -1,6 +1,9 @@
 import env from '#start/env'
 import { defineConfig } from '@adonisjs/redis'
 import { InferConnections } from '@adonisjs/redis/types'
+import { loadEnv } from './secrets.js'
+
+const awsEnv = await loadEnv()
 
 const redisConfig = defineConfig({
   connection: 'main',
@@ -17,8 +20,8 @@ const redisConfig = defineConfig({
     |
     */
     main: {
-      host: env.get('REDIS_HOST'),
-      port: env.get('REDIS_PORT'),
+      host: awsEnv.REDIS_HOST,
+      port: awsEnv.REDIS_PORT,
       password: env.get('REDIS_PASSWORD', ''),
       db: 0,
       keyPrefix: '',

@@ -11,6 +11,7 @@
 
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
+import { loadEnv } from '#config/secrets'
 
 /**
  * URL to the application root. AdonisJS need it to resolve
@@ -32,6 +33,7 @@ const IMPORTER = (filePath: string) => {
 new Ignitor(APP_ROOT, { importer: IMPORTER })
   .tap((app) => {
     app.booting(async () => {
+      await loadEnv()
       await import('#start/env')
     })
     app.listen('SIGTERM', () => app.terminate())

@@ -88,7 +88,6 @@ export default class ProfilesController {
 
       return response.ok({ user, userTopics: topics })
     } catch (error) {
-      console.log(error)
       return response.status(422).send(error.messages)
     }
   }
