@@ -25,7 +25,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
-ADD .env .env
+# ADD .env .env
 RUN npm install pm2 -g
 
 ENV PORT 3333
