@@ -51,5 +51,6 @@ export async function loadEnv() {
     }
   }
 
+  console.log(cachedEnv)
   return cachedEnv
 }
