@@ -4,8 +4,8 @@ resource "aws_ecs_task_definition" "tf_forum_backend" {
   memory                   = "3072"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn       = "arn:aws:iam::380244861394:role/task-forum-frontend"
-  task_role_arn            = "arn:aws:iam::380244861394:role/task-forum-frontend"
+  execution_role_arn       = "arn:aws:iam::380244861394:role/task-forum-backend"
+  task_role_arn            = "arn:aws:iam::380244861394:role/task-forum-backend"
 
   runtime_platform {
     operating_system_family = "LINUX"

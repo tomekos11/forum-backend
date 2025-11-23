@@ -19,5 +19,5 @@ data "aws_lb_listener" "tf_listener_https" {
 }
 
 data "aws_iam_role" "tf_task_role" {
-  name = "task-forum-frontend" 
+  name = "task-forum-backend" 
 }
