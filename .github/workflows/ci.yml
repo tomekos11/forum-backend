@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: forum/backend
-  ECS_CLUSTER: F_CLUSTER
+  ECS_CLUSTER: TF_CLUSTER
   ECS_SERVICE: forum_backend
   TERRAFORM_DIR: terraform
 
