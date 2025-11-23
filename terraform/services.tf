@@ -25,7 +25,7 @@ resource "aws_ecs_service" "tf_forum_backend_service" {
 
   load_balancer {
     target_group_arn = data.aws_lb_target_group.tf_backend_tg.arn
-    container_name   = "tf-forum-backend"
+    container_name   = "forum-backend"
     container_port   = 3333
   }
 

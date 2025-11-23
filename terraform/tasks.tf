@@ -1,5 +1,5 @@
 resource "aws_ecs_task_definition" "tf_forum_backend" {
-  family                   = "tf-forum-backend"
+  family                   = "forum-backend"
   cpu                      = "1024"
   memory                   = "3072"
   network_mode             = "awsvpc"
@@ -14,8 +14,8 @@ resource "aws_ecs_task_definition" "tf_forum_backend" {
   
   container_definitions = jsonencode([
     {
-      name      = "tf-forum-backend"
-      image     = "380244861394.dkr.ecr.eu-north-1.amazonaws.com/tf/forum/backend:${var.image_tag}"
+      name      = "forum-backend"
+      image     = "380244861394.dkr.ecr.eu-north-1.amazonaws.com/forum/backend:${var.image_tag}"
       cpu       = 0
       memory    = null
       essential = true
